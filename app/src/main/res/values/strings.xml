@@ -20,4 +20,5 @@
 
     <string name="tab_SMS_page_title">Send a SMS</string>
     <string name="tab_email_page_title">Send an email</string>
+    <string name="title_activity_chat_bot">ChatBotActivity</string>
 </resources>

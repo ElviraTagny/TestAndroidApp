@@ -35,6 +35,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.natixis_dev.test.MainActivity" />
         </activity>
+        <activity
+            android:name=".ChatBotActivity"
+            android:label="@string/title_activity_chat_bot"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

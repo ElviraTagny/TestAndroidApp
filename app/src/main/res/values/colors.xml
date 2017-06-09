@@ -7,4 +7,9 @@
     <color name="bg_gradient_start">#31244e</color>
     <color name="bg_gradient_end">#6b394c</color>
     <color name="black_transparent">#80000000</color>
+    <color name="light_gray">#d3d3d3</color>
+    <color name="very_light_gray">#f1f1f1</color>
+    <color name="dark_gray">#545454</color>
+    <color name="blue_sky">#99ccff</color><!--#87CEFA-->
 </resources>
+

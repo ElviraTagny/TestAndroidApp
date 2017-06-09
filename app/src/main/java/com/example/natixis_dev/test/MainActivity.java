@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
     @BindView(R.id.menuRecyclerView)
     RecyclerView menuRecyclerView;
 
-    private String[] menuList = {"Speech to text", "Text to Speech", "TouchID feature", "Send a SMS/Email", "Take a picture", "Open a webview", "Watch", "Glasses"};
+    private String[] menuList = {"Speech to text", "Text to Speech", "TouchID feature", "Send a SMS/Email", "Take a picture", "Open a webview", "Watch", "Glasses", "ChatBot"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +111,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
                 break;
             case 5:
                 intent = new Intent(this, WebviewActivity.class);
+                startActivity(intent);
+                break;
+            case 8:
+                intent = new Intent(this, ChatBotActivity.class);
                 startActivity(intent);
                 break;
             default:
