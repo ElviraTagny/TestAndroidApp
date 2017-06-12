@@ -1,4 +1,4 @@
-package com.example.natixis_dev.test;
+package com.example.natixis_dev.test.Database;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -9,9 +9,13 @@ import java.util.Date;
 
 public class Message {
 
+    private long id;
     private String textMessage;
     private long dateMessage;
     private boolean isSender;
+
+    public Message() {
+    }
 
     public Message(String textMessage, int minutesAgo, boolean isSender) {
         this.textMessage = textMessage;
@@ -29,5 +33,25 @@ public class Message {
 
     public boolean isSender() {
         return isSender;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setTextMessage(String textMessage) {
+        this.textMessage = textMessage;
+    }
+
+    public void setDateMessage(long dateMessage) {
+        this.dateMessage = dateMessage;
+    }
+
+    public void setSender(boolean sender) {
+        isSender = sender;
     }
 }

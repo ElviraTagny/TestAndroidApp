@@ -36,7 +36,7 @@
             android:layout_alignRight="@id/textmessage"
             android:textSize="12dp"
             android:textColor="@color/dark_gray"
-            android:layout_marginTop="5dp"/>
+            android:paddingTop="5dp"/>
     </RelativeLayout>
     <ImageButton
         android:layout_width="15dp"
