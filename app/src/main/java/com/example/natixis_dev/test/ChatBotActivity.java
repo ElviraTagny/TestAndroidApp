@@ -1,7 +1,12 @@
 package com.example.natixis_dev.test;
 
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,8 +17,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.natixis_dev.test.ServicesREST.ChatBotService;
 import com.example.natixis_dev.test.ServicesREST.TalkResponse;
@@ -23,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -48,6 +57,9 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
 
     @BindView(R.id.btnSpeak)
     View speakButton;
+
+    private TextToSpeech tts;
+    private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +92,17 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         messagesRecyclerView.setLayoutManager(mLayoutManager);
 
         messages.add(new Message("DYDU à votre disposition ! Que puis-je faire pour vous?", 10, false));
-        ChatBotActivity.MessageAdapter messageAdapter = new ChatBotActivity.MessageAdapter(messages);
+        MessageAdapter messageAdapter = new MessageAdapter(messages);
         messagesRecyclerView.setAdapter(messageAdapter);
+
+        tts =new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.getDefault());
+                }
+            }
+        });
 
         initChatBot();
     }
@@ -90,13 +111,27 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnSpeak:
-                //implement speech to text here
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                        getString(R.string.speech_prompt));
+                try {
+                    startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+                } catch (ActivityNotFoundException a) {
+                    Toast.makeText(getApplicationContext(),
+                            getString(R.string.speech_not_supported),
+                            Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.sendBtn:
                 if(!inputMessage.getText().toString().isEmpty()){
+                    //disparition du clavier
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(inputMessage.getWindowToken(), 0);
                     //creation d'un nouveau message
                     messages.add(new Message(inputMessage.getText().toString(), 0, true));
-
                     //rafraichissement de la recyclerView
                     messagesRecyclerView.getAdapter().notifyDataSetChanged();
 
@@ -131,21 +166,48 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    inputMessage.setText(result.get(0));
+                }
+                break;
+            }
+
+        }
+    }
+
+    public void onPause(){
+        if(tts !=null){
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onPause();
+    }
+
     /***** RECYCLER VIEW STACK *********/
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
         View child = rv.findChildViewUnder(e.getX(), e.getY());
-        ChatBotActivity.MessageAdapter.ViewHolder vh = (ChatBotActivity.MessageAdapter.ViewHolder) rv.findContainingViewHolder(child);
+        if(child != null) {
+            MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) rv.findContainingViewHolder(child);
 
-        Intent intent = null;
-        switch (vh.getAdapterPosition()) {
-            case 0:
-                break;
-            default:
-                break;
+            Intent intent = null;
+            switch (vh.getAdapterPosition()) {
+                case 0:
+                    break;
+                default:
+                    break;
+            }
         }
-
         return false;
     }
 
@@ -164,18 +226,20 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    public class MessageAdapter extends RecyclerView.Adapter<ChatBotActivity.MessageAdapter.ViewHolder> {
+    public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
         private List<Message> mDataset;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView messageTextView;
             public TextView dateTextView;
             public int mPosition;
+            public ImageButton btnRead;
 
             public ViewHolder(View v) {
                 super(v);
                 messageTextView = (TextView) v.findViewById(R.id.textmessage);
                 dateTextView = (TextView) v.findViewById(R.id.datemessage);
+                btnRead = (ImageButton) v.findViewById(R.id.btnRead);
             }
 
 //            public int getPosition(){
@@ -192,27 +256,54 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         @Override
-        public ChatBotActivity.MessageAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+        public MessageAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                                       int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.messagesrecyclerview_item_row, parent, false);
-            ChatBotActivity.MessageAdapter.ViewHolder vh = new ChatBotActivity.MessageAdapter.ViewHolder(v);
+            View v = null;
+            if(viewType == 1){
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.messagesrecyclerview_sender_row, parent, false);
+            }
+            else {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.messagesrecyclerview_item_row, parent, false);
+            }
+            MessageAdapter.ViewHolder vh = new MessageAdapter.ViewHolder(v);
             return vh;
         }
 
         @Override
-        public void onBindViewHolder(ChatBotActivity.MessageAdapter.ViewHolder holder, int position) {
+        public void onBindViewHolder(MessageAdapter.ViewHolder holder, int position) {
             holder.setPosition(position);
             holder.messageTextView.setText(mDataset.get(position).getTextMessage());
             SimpleDateFormat formatter = new SimpleDateFormat("hh:mm");
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(mDataset.get(position).getDateMessage());
             holder.dateTextView.setText(formatter.format(calendar.getTime()));
+            final ViewHolder vh = holder;
+            if(holder.btnRead != null) holder.btnRead.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        tts.speak(vh.messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null, "REQUEST_CODE");
+                    }
+                    else tts.speak(vh.messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
+                }
+            });
         }
 
         @Override
         public int getItemCount() {
             return mDataset.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if(mDataset.get(position).isSender()){
+                return 1;
+            }
+            else {
+                return 0;
+            }
         }
     }
 
