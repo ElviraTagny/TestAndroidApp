@@ -2,12 +2,14 @@ package com.example.natixis_dev.test;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,13 +18,18 @@ import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +37,7 @@ import com.example.natixis_dev.test.Database.Message;
 import com.example.natixis_dev.test.Database.MessageDataSource;
 import com.example.natixis_dev.test.ServicesREST.ChatBotService;
 import com.example.natixis_dev.test.ServicesREST.TalkResponse;
+import com.example.natixis_dev.test.Utils.CustomTagHandler;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -51,10 +59,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ChatBotActivity extends AppCompatActivity implements View.OnClickListener, RecyclerView.RecyclerListener, RecyclerView.OnItemTouchListener, Callback<TalkResponse> {
-
-    private List<Message> messages = new ArrayList<>();
-    private ChatBotService chatBotService;
+public class ChatBotActivity extends AppCompatActivity implements View.OnClickListener, Callback<TalkResponse> {
 
     @BindView(R.id.messagesRecyclerView)
     RecyclerView messagesRecyclerView;
@@ -68,9 +73,8 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
     @BindView(R.id.btnSpeak)
     View speakButton;
 
-    @BindView(R.id.clearBtn)
-    View clearBtn;
-
+    private List<Message> messages = new ArrayList<>();
+    private ChatBotService chatBotService;
     private TextToSpeech tts;
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private MessageDataSource datasource;
@@ -96,17 +100,6 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         sendButton.setOnClickListener(this);
         speakButton = findViewById(R.id.btnSpeak);
         speakButton.setOnClickListener(this);
-        clearBtn = findViewById(R.id.clearBtn);
-        clearBtn.setOnClickListener(this);
-
-        messagesRecyclerView = (RecyclerView) findViewById(R.id.messagesRecyclerView);
-        messagesRecyclerView.setRecyclerListener(this);
-        messagesRecyclerView.addOnItemTouchListener(this);
-
-        // use a linear layout manager
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mLayoutManager.setStackFromEnd(true);
-        messagesRecyclerView.setLayoutManager(mLayoutManager);
 
         //Recuperer les messages de la database
         datasource = new MessageDataSource(this);
@@ -123,9 +116,84 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
             datasource.createMessage(message);
         }
         MessageAdapter messageAdapter = new MessageAdapter(messages);
+        messagesRecyclerView = (RecyclerView) findViewById(R.id.messagesRecyclerView);
+        // use a linear layout manager
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setStackFromEnd(true);
+        messagesRecyclerView.setLayoutManager(mLayoutManager);
         messagesRecyclerView.setAdapter(messageAdapter);
+        if (Build.VERSION.SDK_INT >= 11) {
+            messagesRecyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v,
+                                           int left, int top, int right, int bottom,
+                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    if (bottom < oldBottom) {
+                        messagesRecyclerView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(messagesRecyclerView.getAdapter().getItemCount() > 0) messagesRecyclerView.smoothScrollToPosition(
+                                        messagesRecyclerView.getAdapter().getItemCount() - 1);
+                            }
+                        });
+                    }
+                }
+            });
+        }
 
         initChatBot();
+
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    if(status != TextToSpeech.ERROR) {
+                        tts.setLanguage(Locale.getDefault());
+                    }
+                }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_chatbot, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_delete) {
+            AlertDialog.Builder builder;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Light_Dialog_NoActionBar);
+            } else {
+                builder = new AlertDialog.Builder(this);
+            }
+            builder.setTitle("Supprimer")
+                    .setMessage("Voulez-vous supprimer entièrement cette conversation ?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            datasource.deleteAllMessages();
+                            messages.clear();
+                            messagesRecyclerView.getAdapter().notifyDataSetChanged();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_menu_delete)
+                    .show();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -146,37 +214,32 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
                             Toast.LENGTH_SHORT).show();
                 }
                 break;
+
             case R.id.sendBtn:
                 if(!inputMessage.getText().toString().isEmpty()){
                     //creation d'un nouveau message
-                    String textToSend = inputMessage.getText().toString();
+                    final String textToSend = inputMessage.getText().toString();
                     Message message = new Message(textToSend, 0, true);
                     messages.add(message);
+                    messagesRecyclerView.getAdapter().notifyItemInserted(messages.size() -1);
+                    messagesRecyclerView.smoothScrollToPosition(
+                            messagesRecyclerView.getAdapter().getItemCount() - 1);
                     datasource.createMessage(message);
-                    //disparition du clavier
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(inputMessage.getWindowToken(), 0);
                     inputMessage.setText("");
                     //envoi de la requete
                     Handler mHandler = new Handler();
                     mHandler.postDelayed(new Runnable(){
                         public void run() {
-                            Call<TalkResponse> call = chatBotService.talk(getTalkRequestParameters(inputMessage.getText().toString()));
+                            Call<TalkResponse> call = chatBotService.talk(getTalkRequestParameters(textToSend));
                             call.enqueue(ChatBotActivity.this);
                         }
-                    }, 500);
+                    }, 300);
 
 
                 }
                 break;
 
-            case R.id.clearBtn:
-                datasource.deleteAllMessages();
-                messages.clear();
-                messagesRecyclerView.getAdapter().notifyDataSetChanged();
-                break;
             default:
-
                 break;
         }
     }
@@ -199,68 +262,16 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    public void onPause(){
+    public void onDestroy(){
         datasource.close();
         if(tts !=null){
             tts.stop();
             tts.shutdown();
         }
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        try {
-            datasource.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        if(tts == null){
-            tts =new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                @Override
-                public void onInit(int status) {
-                    if(status != TextToSpeech.ERROR) {
-                        tts.setLanguage(Locale.getDefault());
-                    }
-                }
-            });
-        }
-        super.onResume();
+        super.onDestroy();
     }
 
     /***** RECYCLER VIEW STACK *********/
-
-    @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        View child = rv.findChildViewUnder(e.getX(), e.getY());
-        if(child != null) {
-            MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) rv.findContainingViewHolder(child);
-
-            Intent intent = null;
-            switch (vh.getAdapterPosition()) {
-                case 0:
-                    break;
-                default:
-                    break;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-    }
-
-    @Override
-    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-    }
-
-    @Override
-    public void onViewRecycled(RecyclerView.ViewHolder holder) {
-
-    }
 
     public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
         private List<Message> mDataset;
@@ -278,11 +289,16 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
                 messageTextView = (TextView) v.findViewById(R.id.textmessage);
                 dateTextView = (TextView) v.findViewById(R.id.datemessage);
                 btnRead = (ImageButton) v.findViewById(R.id.btnRead);
+                if(btnRead != null) btnRead.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            tts.speak(messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null, "REQUEST_CODE");
+                        }
+                        else tts.speak(messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
+                    }
+                });
             }
-
-//            public int getPosition(){
-//                return mPosition;
-//            }
 
             public void setPosition(int position) {
                 this.mPosition = position;
@@ -315,16 +331,6 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
             holder.messageTextView.setText(mDataset.get(position).getTextMessage());
             mCalendar.setTimeInMillis(mDataset.get(position).getDateMessage());
             holder.dateTextView.setText(mFormatter.format(mCalendar.getTime()));
-            final ViewHolder vh = holder;
-            if(holder.btnRead != null) holder.btnRead.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        tts.speak(vh.messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null, "REQUEST_CODE");
-                    }
-                    else tts.speak(vh.messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
-                }
-            });
         }
 
         @Override
@@ -334,12 +340,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         public int getItemViewType(int position) {
-            if(mDataset.get(position).isSender()){
-                return 1;
-            }
-            else {
-                return 0;
-            }
+            return mDataset.get(position).isSender() ? 1: 0;
         }
     }
 
@@ -362,20 +363,23 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onResponse(Call<TalkResponse> call, Response<TalkResponse> response) {
         if(response.errorBody() != null){
-            Log.e("CHATBOT", "An error occured: " + response.errorBody().toString());
+            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "An error occured: " + response.errorBody().toString());
             Toast.makeText(this, "An error occured", Toast.LENGTH_SHORT).show();
         }
         else if(response.body() != null) {
-            Message message = new Message(Html.fromHtml(decodeFromBase64ToUtf8(response.body().getValues().getText())).toString(), 0, false);
+            Log.w("TAGHANDLER", response.body().getValues().getText());
+            Message message = new Message(Html.fromHtml(decodeFromBase64ToUtf8(response.body().getValues().getText()), null, new CustomTagHandler()).toString(), 0, false);
             messages.add(message);
             messagesRecyclerView.getAdapter().notifyItemInserted(messages.size() - 1);
+            messagesRecyclerView.smoothScrollToPosition(
+                    messagesRecyclerView.getAdapter().getItemCount() - 1);
             datasource.createMessage(message);
         }
     }
 
     @Override
     public void onFailure(Call<TalkResponse> call, Throwable t) {
-        Log.e("CHATBOT", "An error occured: " + t.getLocalizedMessage());
+        Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "An error occured: " + t.getLocalizedMessage());
     }
 
     private Map<String, Object> getHistoryRequestParameters(){
@@ -391,7 +395,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         data.append("\"parameters\":{");
         //data.append("\"userUrl\":\"" + encodeFromUtf8ToBase64("http://front1.doyoudreamup.com/TestRecipe/30bfa404-279b-48c7-b8b7-ba8d4adf498e/de8f0b26-4a18-4051-8573-cf1430626d97/sample.debug.html") + "\",");
         //data.append("\"alreadyCame\":true,");
-        //data.append("\"clientId\":\"" + encodeFromUtf8ToBase64("2Hb8pJKEA20gdKX") + "\","); //USERID_123
+        data.append("\"clientId\":\"" + encodeFromUtf8ToBase64("USERID_123") + "\","); //USERID_123
         //data.append("\"os\":\"Linux x86_64\",");
         //data.append("\"browser\":\"Firefox 45.0\",");
         //data.append("\"disableLanguageDetection\":\"" + encodeFromUtf8ToBase64("true") + "\",");
@@ -402,7 +406,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         data.append("\"language\":\"" + encodeFromUtf8ToBase64("fr") + "\",");
         data.append("\"space\":\"" + encodeFromUtf8ToBase64("Defaut") + "\",");
         data.append("\"solutionUsed\":\"" + encodeFromUtf8ToBase64("ASSISTANT") + "\",");
-        //data.append("\"pureLivechat\":false,");
+        data.append("\"pureLivechat\":false,");
         data.append("\"userInput\":\"" + encodeFromUtf8ToBase64(userInput) + "\",");
         data.append("\"contextId\":\"" + encodeFromUtf8ToBase64("1982637c-1ff2-4224-8c63-c0ced20cc8ca") + "\"");
         data.append("}}");
@@ -419,7 +423,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
             } else data = sDataToEncode.getBytes("UTF-8");
         }
         catch (UnsupportedEncodingException e) {
-            Log.e("CHATBOT", "Encode error", e);
+            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "Encode error", e);
         }
         String base64Str = Base64.encodeToString(data, Base64.DEFAULT);
         return base64Str;
@@ -434,7 +438,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
             } else utf8Str = new String(data, "UTF-8");
         }
         catch (UnsupportedEncodingException e){
-            Log.e("CHATBOT", "Decode error", e);
+            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "Decode error", e);
         }
         return utf8Str;
     }

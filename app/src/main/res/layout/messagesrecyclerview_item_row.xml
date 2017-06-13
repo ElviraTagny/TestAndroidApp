@@ -39,8 +39,8 @@
             android:paddingTop="5dp"/>
     </RelativeLayout>
     <ImageButton
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_toRightOf="@id/bullemessage"
         android:layout_alignParentTop="true"
         android:background="@drawable/speaker2"

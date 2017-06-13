@@ -86,17 +86,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
 
     @Override
     public void onViewRecycled(RecyclerView.ViewHolder holder) {
-        Log.w("TOTO", "onViewRecycled");
+        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onViewRecycled");
     }
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        Log.w("TOTO", "onInterceptTouchEvent");
-        View child = rv.findChildViewUnder(e.getX(), e.getY());
+        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onInterceptTouchEvent");
+    /*    View child = rv.findChildViewUnder(e.getX(), e.getY());
         MenuAdapter.ViewHolder vh = (MenuAdapter.ViewHolder) rv.findContainingViewHolder(child);
 
         Intent intent = null;
-        switch (vh.getAdapterPosition()){
+        switch (vh.getLayoutPosition()){
             case 0:
                 intent = new Intent(this, SpeechToTextActivity.class);
                 startActivity(intent);
@@ -119,19 +119,19 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
                 break;
             default:
                 break;
-        }
+        }*/
 
         return false;
     }
 
     @Override
     public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        Log.w("TOTO", "onTouchEvent");
+        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onTouchEvent");
     }
 
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        Log.w("TOTO", "onRequestDisallowInterceptTouchEvent");
+        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onRequestDisallowInterceptTouchEvent");
     }
 
     public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
@@ -144,14 +144,41 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
             public ViewHolder(View v) {
                 super(v);
                 mTextView = (TextView) v.findViewById(R.id.label);
+                mTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = null;
+                        switch ((int) mTextView.getTag()){
+                            case 0:
+                                intent = new Intent(MainActivity.this, SpeechToTextActivity.class);
+                                startActivity(intent);
+                                break;
+                            case 1:
+                                intent = new Intent(MainActivity.this, TextToSpeechActivity.class);
+                                startActivity(intent);
+                                break;
+                            case 3:
+                                intent = new Intent(MainActivity.this, MessageActivity.class);
+                                startActivity(intent);
+                                break;
+                            case 5:
+                                intent = new Intent(MainActivity.this, WebviewActivity.class);
+                                startActivity(intent);
+                                break;
+                            case 8:
+                                intent = new Intent(MainActivity.this, ChatBotActivity.class);
+                                startActivity(intent);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
             }
-
-//            public int getPosition(){
-//                return mPosition;
-//            }
 
             public void setPosition(int position) {
                 this.mPosition = position;
+                mTextView.setTag(mPosition);
             }
         }
 
@@ -178,5 +205,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
         public int getItemCount() {
             return mDataset.length;
         }
+
     }
 }
