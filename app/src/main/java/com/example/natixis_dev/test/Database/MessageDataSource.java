@@ -18,7 +18,7 @@ public class MessageDataSource {
     private SQLiteDatabase database;
     private MessageDatabaseHelper dbHelper;
     private String[] allColumns = { MessageDatabaseHelper.COLUMN_ID,
-            MessageDatabaseHelper.COLUMN_MESSAGE, MessageDatabaseHelper.COLUMN_DATE, MessageDatabaseHelper.COLUMN_SENDER };
+            MessageDatabaseHelper.COLUMN_MESSAGE, MessageDatabaseHelper.COLUMN_IMAGE_PATH, MessageDatabaseHelper.COLUMN_DATE, MessageDatabaseHelper.COLUMN_SENDER };
 
     public MessageDataSource(Context context) {
         dbHelper = new MessageDatabaseHelper(context);
@@ -35,6 +35,7 @@ public class MessageDataSource {
     public Message createMessage(Message message) {
         ContentValues values = new ContentValues();
         values.put(MessageDatabaseHelper.COLUMN_MESSAGE, message.getTextMessage());
+        values.put(MessageDatabaseHelper.COLUMN_IMAGE_PATH, message.getImagePath());
         values.put(MessageDatabaseHelper.COLUMN_DATE, message.getDateMessage());
         values.put(MessageDatabaseHelper.COLUMN_SENDER, message.isSender() ? 1: 0);
         long insertId = database.insert(MessageDatabaseHelper.TABLE_MESSAGE, null,
@@ -83,8 +84,9 @@ public class MessageDataSource {
         Message message = new Message();
         message.setId(cursor.getLong(0));
         message.setTextMessage(cursor.getString(1));
-        message.setDateMessage(cursor.getLong(2));
-        message.setSender(cursor.getInt(3) == 0 ? false : true);
+        message.setImagePath(cursor.getString(2));
+        message.setDateMessage(cursor.getLong(3));
+        message.setSender(cursor.getInt(4) == 0 ? false : true);
         return message;
     }
 }

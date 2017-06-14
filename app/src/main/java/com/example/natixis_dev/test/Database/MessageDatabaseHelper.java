@@ -14,17 +14,19 @@ public class MessageDatabaseHelper extends SQLiteOpenHelper {
         public static final String TABLE_MESSAGE = "messages";
         public static final String COLUMN_ID = "_id";
         public static final String COLUMN_MESSAGE = "textmessage";
+        public static final String COLUMN_IMAGE_PATH = "imagepath";
         public static final String COLUMN_DATE = "datemessage";
         public static final String COLUMN_SENDER = "sender";
 
         private static final String DATABASE_NAME = "messages.db";
-        private static final int DATABASE_VERSION = 1;
+        private static final int DATABASE_VERSION = 2;
 
         // Database creation sql statement
         private static final String DATABASE_CREATE = "create table "
                 + TABLE_MESSAGE
                 + "( " + COLUMN_ID + " integer primary key autoincrement, "
-                + COLUMN_MESSAGE + " text not null, "
+                + COLUMN_MESSAGE + " text, "
+                + COLUMN_IMAGE_PATH + " text, "
                 + COLUMN_DATE + " integer not null, "
                 + COLUMN_SENDER + " integer default 0"
                 + ");";

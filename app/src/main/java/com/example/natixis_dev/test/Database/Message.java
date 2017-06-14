@@ -1,5 +1,7 @@
 package com.example.natixis_dev.test.Database;
 
+import android.graphics.Bitmap;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -11,14 +13,16 @@ public class Message {
 
     private long id;
     private String textMessage;
+    private String imagePath;
     private long dateMessage;
     private boolean isSender;
 
     public Message() {
     }
 
-    public Message(String textMessage, int minutesAgo, boolean isSender) {
+    public Message(String textMessage, String imagePath, int minutesAgo, boolean isSender) {
         this.textMessage = textMessage;
+        this.imagePath = imagePath;
         this.dateMessage = Calendar.getInstance().getTimeInMillis() - (minutesAgo * 60 * 1000);
         this.isSender = isSender;
     }
@@ -53,5 +57,13 @@ public class Message {
 
     public void setSender(boolean sender) {
         isSender = sender;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

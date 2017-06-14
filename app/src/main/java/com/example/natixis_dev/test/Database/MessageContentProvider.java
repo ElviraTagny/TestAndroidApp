@@ -176,7 +176,7 @@ public class MessageContentProvider extends ContentProvider {
     }
 
     private void checkColumns(String[] projection) {
-        String[] available = { MessageDatabaseHelper.COLUMN_MESSAGE,
+        String[] available = { MessageDatabaseHelper.COLUMN_MESSAGE, MessageDatabaseHelper.COLUMN_IMAGE_PATH,
                 MessageDatabaseHelper.COLUMN_DATE, MessageDatabaseHelper.COLUMN_SENDER,
                 MessageDatabaseHelper.COLUMN_ID };
         if (projection != null) {
