@@ -29,6 +29,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,13 +55,17 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import okhttp3.OkHttpClient;
@@ -98,7 +103,6 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
     public static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 300;
     public static final String ALLOW_KEY = "ALLOWED";
     public static final String CAMERA_PREF = "camera_pref";
-    private static int count = 0;
     private MessageDataSource datasource;
     private static Uri currentPictureUri;
 
@@ -298,41 +302,10 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case REQ_CODE_TAKE_PHOTO:
                 if(resultCode == RESULT_OK) {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    //options.inSampleSize = 4;
-
-
-                    Bitmap bitmap = null;
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), currentPictureUri);
-                        //Send picture in chat
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    catch (OutOfMemoryError err){
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 20, byteArrayOutputStream);
-                        Log.e("TestApp - "+ ChatBotActivity.class.getSimpleName(), "Out of memory error catched");
-                    }
-                    byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    String encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
-                    addMessage(encodedPicture, currentPictureUri.getPath(), true);
-                    /*Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("image/*");
-                    startActivityForResult(intent, PICK_PHOTO_FOR_AVATAR);*/
+                    addMessage("", currentPictureUri.getPath(), true);
 
                 }
                 break;
-            /*case PICK_PHOTO_FOR_AVATAR:
-            if (resultCode == RESULT_OK) {
-                if (data == null) {
-                    //Display an error
-                    return;
-                }
-                InputStream inputStream = this.getContentResolver().openInputStream(data.getData());
-            }*/
-
         }
     }
 
@@ -352,6 +325,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         SimpleDateFormat mFormatter = new SimpleDateFormat("hh:mm");
         Calendar mCalendar = Calendar.getInstance();
         BitmapFactory.Options options = new BitmapFactory.Options();
+        private Bitmap bitmap;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView messageTextView;
@@ -384,7 +358,10 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
 
         public MessageAdapter(List<Message> myDataset) {
             mDataset = myDataset;
-            //options.inSampleSize = 4;
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = 4;
+            //options.inPreferredConfig = Bitmap.Config.RGB_565;
+            //options.inDither = true;
         }
 
         @Override
@@ -406,10 +383,16 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         @Override
         public void onBindViewHolder(MessageAdapter.ViewHolder holder, int position) {
             holder.setPosition(position);
-            holder.messageTextView.setText(mDataset.get(position).getTextMessage());
+            String txt = mDataset.get(position).getTextMessage();
+            if(!txt.isEmpty()){
+                holder.messageTextView.setVisibility(View.VISIBLE);
+                holder.messageTextView.setText(txt);
+                holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+            else holder.messageTextView.setVisibility(View.GONE);
             if(holder.imageView != null) {
-                if (!mDataset.get(position).getImagePath().isEmpty()) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(mDataset.get(position).getImagePath(), options);
+                if (mDataset.get(position).getImagePath() != null && !mDataset.get(position).getImagePath().isEmpty()) {
+                    bitmap = BitmapFactory.decodeFile(mDataset.get(position).getImagePath(), options);
                     holder.imageView.setVisibility(View.VISIBLE);
                     holder.imageView.setImageBitmap(bitmap);
                 } else {
@@ -451,7 +434,8 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
     public void onResponse(Call<TalkResponse> call, Response<TalkResponse> response) {
         if(response.errorBody() != null){
             Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "An error occured: " + response.errorBody().toString());
-            Toast.makeText(this, "An error occured", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "An error occured", Toast.LENGTH_SHORT).show();
+            addMessage("Oups ! Un problème est survenu...", null, false);
         }
         else if(response.body() != null) {
             String messageText = getCleanText(response.body().getValues().getText());
@@ -463,14 +447,18 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         // Base 64 decode
         String text = decodeFromBase64ToUtf8(sEncodedHtmlText);
         // Get text to underline
-        /*Pattern pattern = Pattern.compile(">(.*?)<");
+/*
+        Pattern pattern = Pattern.compile("onclick=\"reword.*',");
         Matcher matcher = pattern.matcher(text);
-        for (int i = 0; i < matcher.groupCount(); i++){
-            Log.w("PARSE", matcher.group(i) +" ");
-        }*/
+        for (int i = 1; i < matcher.groupCount(); i++){
+            Log.d("PARSE", matcher.group(i) +" ");
+        }
+*/
 
         // Html to Text
         text = Html.fromHtml(text, null, new CustomTagHandler()).toString();
+        //String[] und_text = text.split("•");
+
         return text;
     }
 
@@ -486,7 +474,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         return data;
     }
 
-    private String getTalkRequestParameters(String userInput){
+    private String getTalkRequestParameters(String userInput, String bImagePath){
         StringBuilder data = new StringBuilder();
         data.append("{\"type\":\"talk\",");
         data.append("\"parameters\":{");
@@ -504,7 +492,24 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         data.append("\"space\":\"" + encodeFromUtf8ToBase64("Defaut") + "\",");
         data.append("\"solutionUsed\":\"" + encodeFromUtf8ToBase64("ASSISTANT") + "\",");
         data.append("\"pureLivechat\":false,");
-        data.append("\"userInput\":\"" + encodeFromUtf8ToBase64(userInput) + "\",");
+        String encodedPicture = "";
+        if(bImagePath != null){
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 4;
+            Bitmap bitmap = null;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            try {
+                bitmap = BitmapFactory.decodeFile(bImagePath, options);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            }
+            catch (OutOfMemoryError err){
+                bitmap.compress(Bitmap.CompressFormat.PNG, 50, byteArrayOutputStream);
+                Log.e("TestApp - "+ ChatBotActivity.class.getSimpleName(), "Out of memory error catched");
+            }
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        }
+        data.append("\"userInput\":\"" + encodedPicture + encodeFromUtf8ToBase64(userInput) + "\",");
         data.append("\"contextId\":\"" + encodeFromUtf8ToBase64("1982637c-1ff2-4224-8c63-c0ced20cc8ca") + "\"");
         data.append("}}");
 
@@ -682,21 +687,20 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void openCamera() {
-        /*Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        startActivity(intent);*/
 
         final String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/TestApp/";
         File newDir = new File(dir);
         newDir.mkdirs();
 
-        count++;
-        String filename = "chat_picture(" + count + ").jpg";
+        long currentTimeInMS = (new Date()).getTime();
+        String filename = "chat_picture(" + currentTimeInMS + ").jpg";
         File newfile = new File(newDir, filename);
         try {
             newfile.createNewFile();
         }
         catch (IOException e)
         {
+            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "openCamera - ", e);
         }
 
         currentPictureUri = Uri.fromFile(newfile);
@@ -707,13 +711,8 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         startActivityForResult(cameraIntent, REQ_CODE_TAKE_PHOTO);
     }
 
-    private void addMessage(final String sTextMessage, String bImagePath, boolean bSend) {
-        Message message;
-        if(bImagePath != null){
-            message = new Message("", bImagePath, 0, bSend);
-        } else {
-            message = new Message(sTextMessage, null, 0, bSend);
-        }
+    private void addMessage(final String sTextMessage, final String bImagePath, boolean bSend) {
+        Message message = new Message(sTextMessage, bImagePath, 0, bSend);
         messages.add(message);
         if(messages.size() > 0) {
             messagesRecyclerView.getAdapter().notifyItemInserted(messages.size() - 1);
@@ -722,12 +721,12 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         }
         datasource.createMessage(message);
 
-        if(bSend){
+        if(bSend){ // on envoie pas les images pour l'instant
             //envoi de la requete
             Handler mHandler = new Handler();
             mHandler.postDelayed(new Runnable(){
                 public void run() {
-                    Call<TalkResponse> call = chatBotService.talk(getTalkRequestParameters(sTextMessage));
+                    Call<TalkResponse> call = chatBotService.talk(getTalkRequestParameters(sTextMessage, bImagePath));
                     call.enqueue(ChatBotActivity.this);
                 }
             }, 300);

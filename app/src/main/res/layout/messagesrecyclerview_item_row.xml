@@ -5,15 +5,15 @@
     android:layout_marginBottom="10dp">
 
     <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:id="@+id/profilePicture"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="5dp"
         android:layout_centerVertical="true"
         android:src="@drawable/dydu"/>
 
     <RelativeLayout
-        android:layout_width="200dp"
+        android:layout_width="230dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/profilePicture"
         android:id="@+id/bullemessage"
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textmessage"
-            android:textSize="15dp"
+            android:textSize="14dp"
             android:textColor="@android:color/black"
             android:layout_centerVertical="true"/>
 
@@ -34,13 +34,13 @@
             android:id="@+id/datemessage"
             android:layout_below="@id/textmessage"
             android:layout_alignRight="@id/textmessage"
-            android:textSize="12dp"
+            android:textSize="10dp"
             android:textColor="@color/dark_gray"
-            android:paddingTop="5dp"/>
+            android:paddingTop="3dp"/>
     </RelativeLayout>
     <ImageButton
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
         android:layout_toRightOf="@id/bullemessage"
         android:layout_alignParentTop="true"
         android:background="@drawable/speaker2"
