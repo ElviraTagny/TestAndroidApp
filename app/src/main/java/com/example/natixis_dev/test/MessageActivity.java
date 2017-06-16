@@ -1,6 +1,7 @@
 package com.example.natixis_dev.test;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -29,14 +30,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MessageActivity extends AppCompatActivity {
+import com.example.natixis_dev.test.Utils.TopActivity;
 
-    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
-    private static final int MY_PERMISSIONS_REQUEST_INTERNET = 1;
-    protected static Activity thisActivity;
+public class MessageActivity extends TopActivity {
 
-    private static String mInputMessage;
-    private static String mInputDest;
+    private static MessageActivity thisActivity;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -152,22 +150,7 @@ public class MessageActivity extends AppCompatActivity {
         public void onClick(View v) {
             if(v.getId() == R.id.sendBtn){
                 if(!inputDest.getText().toString().isEmpty() && !inputMessage.getText().toString().isEmpty()) {
-                    mInputMessage = inputMessage.getText().toString();
-                    mInputDest = inputDest.getText().toString();
-                    if (ContextCompat.checkSelfPermission(thisActivity,
-                            Manifest.permission.SEND_SMS)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
-                                Manifest.permission.SEND_SMS)) {
-                        } else {
-                            ActivityCompat.requestPermissions(thisActivity,
-                                    new String[]{Manifest.permission.SEND_SMS},
-                                    MY_PERMISSIONS_REQUEST_SEND_SMS);
-                        }
-                    }
-                    else {
-                        sendSMS();
-                    }
+                    sendSMS(thisActivity, inputDest.getText().toString(), inputMessage.getText().toString());
                 }
             }
         }
@@ -218,22 +201,7 @@ public class MessageActivity extends AppCompatActivity {
         public void onClick(View v) {
             if(v.getId() == R.id.sendBtn){
                 if(!inputDest.getText().toString().isEmpty() && !inputMessage.getText().toString().isEmpty()) {
-                    mInputMessage = inputMessage.getText().toString();
-                    mInputDest = inputDest.getText().toString();
-                    if (ContextCompat.checkSelfPermission(thisActivity,
-                            Manifest.permission.INTERNET)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
-                                Manifest.permission.INTERNET)) {
-                        } else {
-                            ActivityCompat.requestPermissions(thisActivity,
-                                    new String[]{Manifest.permission.INTERNET},
-                                    MY_PERMISSIONS_REQUEST_INTERNET);
-                        }
-                    }
-                    else {
-                        sendEmail();
-                    }
+                    sendEmail(thisActivity, inputDest.getText().toString(), null, inputMessage.getText().toString());
                 }
             }
         }
@@ -255,9 +223,9 @@ public class MessageActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position){
                 case 0:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    return new PlaceholderFragment().newInstance(position + 1);
                 case 1:
-                    return PlaceholderFragment2.newInstance(position + 1);
+                    return new PlaceholderFragment2().newInstance(position + 1);
             }
             return null;
         }
@@ -278,48 +246,5 @@ public class MessageActivity extends AppCompatActivity {
             }
             return null;
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    sendSMS();
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "SMS failed, please try again.", Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            case MY_PERMISSIONS_REQUEST_INTERNET: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    sendEmail();
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "Sending failed, please try again.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                break;
-            }
-        }
-
-    }
-
-    private static void sendEmail() {
-
-
-        Toast.makeText(thisActivity, "Email sent.",
-                Toast.LENGTH_LONG).show();
-
-    }
-
-    private static void sendSMS() {
-        SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(mInputDest.replace("+", "00"), null, mInputMessage, null, null);
-        Toast.makeText(thisActivity, "SMS sent.",
-                Toast.LENGTH_LONG).show();
     }
 }

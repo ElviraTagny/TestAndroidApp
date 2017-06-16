@@ -15,9 +15,11 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.natixis_dev.test.Utils.TopActivity;
+
 import butterknife.BindView;
 
-public class WebviewActivity extends AppCompatActivity implements View.OnClickListener {
+public class WebviewActivity extends TopActivity implements View.OnClickListener {
 
     private static final CharSequence WWW_PREFIX = "www.";
     private static final CharSequence HTTP_PREFIX = "http://";

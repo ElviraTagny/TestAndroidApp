@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.example.natixis_dev.test.Utils.TopActivity;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,7 +54,7 @@ public class MessageDataSource {
 
     public void deleteMessage(Message message) {
         long id = message.getId();
-        System.out.println("Message deleted with id: " + id);
+        Log.d(TopActivity.APP_TAG, "Message deleted with id: " + id);
         database.delete(MessageDatabaseHelper.TABLE_MESSAGE, MessageDatabaseHelper.COLUMN_ID
                 + " = " + id, null);
     }

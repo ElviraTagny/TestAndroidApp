@@ -27,7 +27,7 @@
         android:layout_marginRight="@dimen/content_margin"
         android:layout_marginBottom="10dp"
         android:id="@+id/inputDest"
-        android:hint="john.doe@domain.com"
+        android:hint="@string/send_email_hint_address"
         android:inputType="textEmailAddress"/>
 
     <EditText

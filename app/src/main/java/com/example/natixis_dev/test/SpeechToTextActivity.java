@@ -14,6 +14,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.natixis_dev.test.Utils.TopActivity;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -24,7 +26,7 @@ import butterknife.OnClick;
  * Created by natixis-dev on 16/05/2017.
  */
 
-public class SpeechToTextActivity extends Activity {
+public class SpeechToTextActivity extends TopActivity {
 
     @BindView(R.id.txtSpeechInput)
     TextView txtSpeechInput;
@@ -34,8 +36,6 @@ public class SpeechToTextActivity extends Activity {
     Button answerButton;
 
     private final int REQ_CODE_SPEECH_INPUT = 100;
-    private TextToSpeech tts;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,20 +54,11 @@ public class SpeechToTextActivity extends Activity {
             }
         });
 
-        tts =new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.getDefault());
-                }
-            }
-        });
-
         answerButton = (Button) findViewById(R.id.answerButton);
         answerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                answer();
+                read(getString(R.string.default_speech_answer));
             }
         });
     }
@@ -111,21 +102,5 @@ public class SpeechToTextActivity extends Activity {
             }
 
         }
-    }
-
-    public void onPause(){
-        if(tts !=null){
-            tts.stop();
-            tts.shutdown();
-        }
-        super.onPause();
-    }
-
-    @OnClick(R.id.answerButton)
-   protected void answer(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.speak(getString(R.string.speech_default), TextToSpeech.QUEUE_FLUSH, null, "REQUEST_CODE");
-        }
-        else tts.speak(getString(R.string.speech_default), TextToSpeech.QUEUE_FLUSH, null);
     }
 }

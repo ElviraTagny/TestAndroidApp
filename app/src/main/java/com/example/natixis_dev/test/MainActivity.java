@@ -18,9 +18,11 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.natixis_dev.test.Utils.TopActivity;
+
 import butterknife.BindView;
 
-public class MainActivity extends AppCompatActivity implements RecyclerView.RecyclerListener, RecyclerView.OnItemTouchListener {
+public class MainActivity extends TopActivity implements RecyclerView.RecyclerListener, RecyclerView.OnItemTouchListener {
 
     @BindView(R.id.menuRecyclerView)
     RecyclerView menuRecyclerView;
@@ -34,14 +36,14 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         // hide the action bar
         try {
@@ -86,12 +88,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
 
     @Override
     public void onViewRecycled(RecyclerView.ViewHolder holder) {
-        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onViewRecycled");
+        Log.w(APP_TAG + MainActivity.class.getSimpleName() , "onViewRecycled");
     }
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onInterceptTouchEvent");
+        Log.w(APP_TAG + MainActivity.class.getSimpleName() , "onInterceptTouchEvent");
     /*    View child = rv.findChildViewUnder(e.getX(), e.getY());
         MenuAdapter.ViewHolder vh = (MenuAdapter.ViewHolder) rv.findContainingViewHolder(child);
 
@@ -126,12 +128,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
 
     @Override
     public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onTouchEvent");
+        Log.w(APP_TAG + MainActivity.class.getSimpleName() , "onTouchEvent");
     }
 
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        Log.w("TestApp - " + MainActivity.class.getSimpleName() , "onRequestDisallowInterceptTouchEvent");
+        Log.w(APP_TAG + MainActivity.class.getSimpleName() , "onRequestDisallowInterceptTouchEvent");
     }
 
     public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
@@ -159,6 +161,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
                                 break;
                             case 3:
                                 intent = new Intent(MainActivity.this, MessageActivity.class);
+                                startActivity(intent);
+                                break;
+                            case 4:
+                                intent = new Intent(MainActivity.this, PhotoVideoActivity.class);
                                 startActivity(intent);
                                 break;
                             case 5:
@@ -205,6 +211,5 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.Recy
         public int getItemCount() {
             return mDataset.length;
         }
-
     }
 }

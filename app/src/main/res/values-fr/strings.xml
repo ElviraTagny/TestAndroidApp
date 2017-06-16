@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Test</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="hello_world">Salut les gens !</string>
+    <string name="speech_prompt">Vous pouvez parler&#8230;</string>
+    <string name="speech_not_supported">Désolé ! Votre téléphone ne supporte pas cette fonctionnalité.</string>
+    <string name="tap_on_mic">Cliquez sur le micro pour parler</string>
+    <string name="speech_default">Désolé, je ne comprends pas.</string>
+    <string name="welcome_title">Bienvenue !</string>
+    <string name="input_hint">Votre discours apparaitra ici</string>
+    <string name="readButton">Lire</string>
+    <string name="input_url_hint">Entrer une URL</string>
+    <string name="go_button">Go</string>
+    <string name="loading">En cours...</string>
+    <string name="error_occured">Une erreur est survenue. \nVeuillez vérifier votre connexion internet.</string>
+    <string name="dest_label">À :</string>
+    <string name="send_button">Envoyer</string>
+    <string name="section_format">Salut les gens, de: %1$d</string>
+    <string name="tab_SMS_page_title">Envoyer un SMS</string>
+    <string name="tab_email_page_title">Envoyer un email</string>
+    <string name="action_delete">Supprimer</string>
+    <string name="email_chooser_title">Choisir une app</string>
+    <string name="answer_button">Répondre</string>
+    <string name="alert_permission_negative_button">REFUSER</string>
+    <string name="alert_permission_positive_button">ACCEPTER</string>
+    <string name="default_speech_answer">Désolé, je ne comprends pas</string>
+    <string name="send_email_hint_address">jean.dupont@domaine.com</string>
+    <string name="alert_permission_title">Permission requise</string>
+    <string name="alert_permission_settings_button">PARAMETRES</string>
+    <string name="file_prefix">Pic_</string>
+    <string name="file_extension">.jpg</string>
+    <string name="button_delete">Supprimer</string>
+    <string name="alert_delete_text">Voulez-vous supprimer entièrement cette conversation ?</string>
+    <string name="alert_permission_text">TestApp requiert l\'accès à : %1$s. Veuillez autoriser l\'accès.</string>
+    <string name="sms_sent">SMS sent !</string>
+</resources>

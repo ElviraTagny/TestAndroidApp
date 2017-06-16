@@ -1,28 +1,16 @@
 package com.example.natixis_dev.test;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -48,18 +36,14 @@ import com.example.natixis_dev.test.Database.MessageDataSource;
 import com.example.natixis_dev.test.ServicesREST.ChatBotService;
 import com.example.natixis_dev.test.ServicesREST.TalkResponse;
 import com.example.natixis_dev.test.Utils.CustomTagHandler;
+import com.example.natixis_dev.test.Utils.TopActivity;
+import com.example.natixis_dev.test.Utils.Utils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -76,7 +60,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ChatBotActivity extends AppCompatActivity implements View.OnClickListener, Callback<TalkResponse> {
+public class ChatBotActivity extends TopActivity implements View.OnClickListener, Callback<TalkResponse> {
 
     @BindView(R.id.messagesRecyclerView)
     RecyclerView messagesRecyclerView;
@@ -97,14 +81,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
     private ChatBotService chatBotService;
     private TextToSpeech tts;
     private final int REQ_CODE_SPEECH_INPUT = 100;
-    private final int REQ_CODE_TAKE_PHOTO = 1;
-    public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
-    public static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 200;
-    public static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 300;
-    public static final String ALLOW_KEY = "ALLOWED";
-    public static final String CAMERA_PREF = "camera_pref";
     private MessageDataSource datasource;
-    private static Uri currentPictureUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,8 +202,8 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
             } else {
                 builder = new AlertDialog.Builder(this);
             }
-            builder.setTitle("Supprimer")
-                    .setMessage("Voulez-vous supprimer entièrement cette conversation ?")
+            builder.setTitle(getString(R.string.button_delete))
+                    .setMessage(getString(R.string.alert_delete_text))
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             datasource.deleteAllMessages();
@@ -275,12 +252,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
                 break;
 
             case R.id.btnCamera:
-                if(checkPermission(Manifest.permission.CAMERA, MY_PERMISSIONS_REQUEST_CAMERA, "Camera")
-                        && checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_WRITE_STORAGE, "Files")
-                        && checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_READ_STORAGE, "Files")){
-                    openCamera();
-                }
-
+                takePicture(REQ_CODE_TAKE_PHOTO);
                 break;
             default:
                 break;
@@ -302,7 +274,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case REQ_CODE_TAKE_PHOTO:
                 if(resultCode == RESULT_OK) {
-                    addMessage("", currentPictureUri.getPath(), true);
+                    addMessage("", getCurrentUriFile().getPath(), true);
 
                 }
                 break;
@@ -343,10 +315,7 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
                 if(btnRead != null) btnRead.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            tts.speak(messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null, "REQUEST_CODE");
-                        }
-                        else tts.speak(messageTextView.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
+                        read(messageTextView.getText().toString());
                     }
                 });
             }
@@ -414,303 +383,6 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    /***** CHATBOT STACK *******/
-
-    public void initChatBot(){
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ChatBotService.ENDPOINT)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        chatBotService = retrofit.create(ChatBotService.class);
-    }
-
-    @Override
-    public void onResponse(Call<TalkResponse> call, Response<TalkResponse> response) {
-        if(response.errorBody() != null){
-            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "An error occured: " + response.errorBody().toString());
-            //Toast.makeText(this, "An error occured", Toast.LENGTH_SHORT).show();
-            addMessage("Oups ! Un problème est survenu...", null, false);
-        }
-        else if(response.body() != null) {
-            String messageText = getCleanText(response.body().getValues().getText());
-            addMessage(messageText, null, false);
-        }
-    }
-
-    private String getCleanText(String sEncodedHtmlText) {
-        // Base 64 decode
-        String text = decodeFromBase64ToUtf8(sEncodedHtmlText);
-        // Get text to underline
-/*
-        Pattern pattern = Pattern.compile("onclick=\"reword.*',");
-        Matcher matcher = pattern.matcher(text);
-        for (int i = 1; i < matcher.groupCount(); i++){
-            Log.d("PARSE", matcher.group(i) +" ");
-        }
-*/
-
-        // Html to Text
-        text = Html.fromHtml(text, null, new CustomTagHandler()).toString();
-        //String[] und_text = text.split("•");
-
-        return text;
-    }
-
-    @Override
-    public void onFailure(Call<TalkResponse> call, Throwable t) {
-        Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "An error occured: " + t.getLocalizedMessage());
-    }
-
-    private Map<String, Object> getHistoryRequestParameters(){
-
-        Map<String, Object> data = new HashMap<>();
-
-        return data;
-    }
-
-    private String getTalkRequestParameters(String userInput, String bImagePath){
-        StringBuilder data = new StringBuilder();
-        data.append("{\"type\":\"talk\",");
-        data.append("\"parameters\":{");
-        //data.append("\"userUrl\":\"" + encodeFromUtf8ToBase64("http://front1.doyoudreamup.com/TestRecipe/30bfa404-279b-48c7-b8b7-ba8d4adf498e/de8f0b26-4a18-4051-8573-cf1430626d97/sample.debug.html") + "\",");
-        //data.append("\"alreadyCame\":true,");
-        data.append("\"clientId\":\"" + encodeFromUtf8ToBase64("USERID_123") + "\","); //USERID_123
-        //data.append("\"os\":\"Linux x86_64\",");
-        //data.append("\"browser\":\"Firefox 45.0\",");
-        //data.append("\"disableLanguageDetection\":\"" + encodeFromUtf8ToBase64("true") + "\",");
-        //data.append("\"contextType\":\"Web\",");
-        //data.append("\"mode\":\"Synchrone\",");
-        data.append("\"botId\":\"" + encodeFromUtf8ToBase64("972f1264-6d85-4a58-b5ac-da31481dda63") + "\","); //30bfa404-279b-48c7-b8b7-ba8d4adf498e
-        //data.append("\"qualificationMode\":true,");
-        data.append("\"language\":\"" + encodeFromUtf8ToBase64("fr") + "\",");
-        data.append("\"space\":\"" + encodeFromUtf8ToBase64("Defaut") + "\",");
-        data.append("\"solutionUsed\":\"" + encodeFromUtf8ToBase64("ASSISTANT") + "\",");
-        data.append("\"pureLivechat\":false,");
-        String encodedPicture = "";
-        if(bImagePath != null){
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 4;
-            Bitmap bitmap = null;
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            try {
-                bitmap = BitmapFactory.decodeFile(bImagePath, options);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-            }
-            catch (OutOfMemoryError err){
-                bitmap.compress(Bitmap.CompressFormat.PNG, 50, byteArrayOutputStream);
-                Log.e("TestApp - "+ ChatBotActivity.class.getSimpleName(), "Out of memory error catched");
-            }
-            byte[] byteArray = byteArrayOutputStream.toByteArray();
-            encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
-        }
-        data.append("\"userInput\":\"" + encodedPicture + encodeFromUtf8ToBase64(userInput) + "\",");
-        data.append("\"contextId\":\"" + encodeFromUtf8ToBase64("1982637c-1ff2-4224-8c63-c0ced20cc8ca") + "\"");
-        data.append("}}");
-
-
-        return data.toString();
-    }
-
-    private String encodeFromUtf8ToBase64(String sDataToEncode){
-        byte[] data = new byte[0];
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                data = sDataToEncode.getBytes(StandardCharsets.UTF_8);
-            } else data = sDataToEncode.getBytes("UTF-8");
-        }
-        catch (UnsupportedEncodingException e) {
-            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "Encode error", e);
-        }
-        String base64Str = Base64.encodeToString(data, Base64.DEFAULT);
-        return base64Str;
-    }
-
-    private String decodeFromBase64ToUtf8(String sDataToDecode){
-        byte[] data = Base64.decode(sDataToDecode, Base64.DEFAULT);
-        String utf8Str = null;
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                utf8Str = new String(data, StandardCharsets.UTF_8);
-            } else utf8Str = new String(data, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e){
-            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "Decode error", e);
-        }
-        return utf8Str;
-    }
-
-    public static void saveToPreferences(Context context, String key, Boolean allowed) {
-        SharedPreferences myPrefs = context.getSharedPreferences(CAMERA_PREF,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = myPrefs.edit();
-        prefsEditor.putBoolean(key, allowed);
-        prefsEditor.commit();
-    }
-
-    public static Boolean getFromPref(Context context, String key) {
-        SharedPreferences myPrefs = context.getSharedPreferences(CAMERA_PREF,
-                Context.MODE_PRIVATE);
-        return (myPrefs.getBoolean(key, false));
-    }
-
-    private void showAlert(final String permission, final int requestCode, String featureName) {
-        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle("Permission required");
-        alertDialog.setMessage("TestApp needs to access the " + featureName + ". Please grant permission.");
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DON'T ALLOW",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ActivityCompat.requestPermissions(ChatBotActivity.this,
-                                new String[]{permission},
-                                requestCode);
-                    }
-                });
-        alertDialog.show();
-    }
-
-    private void showSettingsAlert(String featureName) {
-        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle("Permission required");
-        alertDialog.setMessage("TestApp needs to access the " + featureName + ". Please grant permission.");
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DON'T ALLOW",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        //finish();
-                    }
-                });
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SETTINGS",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        startInstalledAppDetailsActivity(ChatBotActivity.this);
-                    }
-                });
-
-        alertDialog.show();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        String permission = null;
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_CAMERA:
-                //for (int i = 0, len = permissions.length; i < len; i++) {
-                permission = permissions[0];
-                if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    boolean
-                            showRationale =
-                            ActivityCompat.shouldShowRequestPermissionRationale(
-                                    this, permission);
-                     if (showRationale) {
-                         showAlert(permission, requestCode, "Camera");
-                     } else if (!showRationale) {
-                         // user denied flagging NEVER ASK AGAIN
-                         // you can either enable some fall back,
-                         // disable features of your app
-                         // or open another dialog explaining
-                         // again the permission and directing to
-                         // the app setting
-                         saveToPreferences(this, ALLOW_KEY, true);
-                     }
-                }
-                else {
-                    openCamera();
-                }
-                //}
-                break;
-            case MY_PERMISSIONS_REQUEST_WRITE_STORAGE:
-            case MY_PERMISSIONS_REQUEST_READ_STORAGE:
-                //for (int i = 0, len = permissions.length; i < len; i++) {
-                permission = permissions[0];
-                if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    boolean showRationale =
-                            ActivityCompat.shouldShowRequestPermissionRationale(
-                                        this, permission);
-
-                    if (showRationale) {
-                        showAlert(permission, requestCode, "Files");
-                    } else if (!showRationale) {
-                        // user denied flagging NEVER ASK AGAIN
-                        // you can either enable some fall back,
-                        // disable features of your app
-                        // or open another dialog explaining
-                        // again the permission and directing to
-                        // the app setting
-                        saveToPreferences(this, ALLOW_KEY, true);
-                    }
-                }
-                else {
-                    openCamera();
-                }
-                //}
-            break;
-            default:
-                break;
-        }
-    }
-
-    public static void startInstalledAppDetailsActivity(final Activity context) {
-        if (context == null) {
-            return;
-        }
-
-        final Intent i = new Intent();
-        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        i.addCategory(Intent.CATEGORY_DEFAULT);
-        i.setData(Uri.parse("package:" + context.getPackageName()));
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        context.startActivity(i);
-    }
-
-    private void openCamera() {
-
-        final String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/TestApp/";
-        File newDir = new File(dir);
-        newDir.mkdirs();
-
-        long currentTimeInMS = (new Date()).getTime();
-        String filename = "chat_picture(" + currentTimeInMS + ").jpg";
-        File newfile = new File(newDir, filename);
-        try {
-            newfile.createNewFile();
-        }
-        catch (IOException e)
-        {
-            Log.e("TestApp - " + ChatBotActivity.class.getSimpleName(), "openCamera - ", e);
-        }
-
-        currentPictureUri = Uri.fromFile(newfile);
-
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, currentPictureUri);
-
-        startActivityForResult(cameraIntent, REQ_CODE_TAKE_PHOTO);
-    }
-
     private void addMessage(final String sTextMessage, final String bImagePath, boolean bSend) {
         Message message = new Message(sTextMessage, bImagePath, 0, bSend);
         messages.add(message);
@@ -733,30 +405,105 @@ public class ChatBotActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private boolean checkPermission(String permission, int requestCode, String featureName){
-        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-            if (getFromPref(this, ALLOW_KEY)) {
-                showSettingsAlert(featureName);
-            } else if (ContextCompat.checkSelfPermission(this,
-                    permission)
+    /***** CHATBOT STACK *******/
 
-                    != PackageManager.PERMISSION_GRANTED) {
+    public void initChatBot(){
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        permission)) {
-                    showAlert(permission, requestCode, featureName);
-                } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{permission},
-                            requestCode);
-                }
-            }
-            return false;
-        } else {
-            return true;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ChatBotService.ENDPOINT)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        chatBotService = retrofit.create(ChatBotService.class);
+    }
+
+    @Override
+    public void onResponse(Call<TalkResponse> call, Response<TalkResponse> response) {
+        if(response.errorBody() != null){
+            Log.e(APP_TAG + ChatBotActivity.class.getSimpleName(), "An error occured: " + response.errorBody().toString());
+            //Toast.makeText(this, "An error occured", Toast.LENGTH_SHORT).show();
+            addMessage("Oups ! Un problème est survenu...", null, false);
+        }
+        else if(response.body() != null) {
+            String messageText = getCleanText(response.body().getValues().getText());
+            addMessage(messageText, null, false);
         }
     }
 
+    @Override
+    public void onFailure(Call<TalkResponse> call, Throwable t) {
+        Log.e(APP_TAG + ChatBotActivity.class.getSimpleName(), "An error occured: " + t.getLocalizedMessage());
+    }
+
+    private Map<String, Object> getHistoryRequestParameters(){
+
+        Map<String, Object> data = new HashMap<>();
+
+        return data;
+    }
+
+    private String getTalkRequestParameters(String userInput, String bImagePath){
+        StringBuilder data = new StringBuilder();
+        data.append("{\"type\":\"talk\",");
+        data.append("\"parameters\":{");
+        //data.append("\"userUrl\":\"" + Utils.encodeFromUtf8ToBase64("http://front1.doyoudreamup.com/TestRecipe/30bfa404-279b-48c7-b8b7-ba8d4adf498e/de8f0b26-4a18-4051-8573-cf1430626d97/sample.debug.html") + "\",");
+        //data.append("\"alreadyCame\":true,");
+        data.append("\"clientId\":\"" + Utils.encodeFromUtf8ToBase64("USERID_123") + "\","); //USERID_123
+        //data.append("\"os\":\"Linux x86_64\",");
+        //data.append("\"browser\":\"Firefox 45.0\",");
+        //data.append("\"disableLanguageDetection\":\"" + Utils.encodeFromUtf8ToBase64("true") + "\",");
+        //data.append("\"contextType\":\"Web\",");
+        //data.append("\"mode\":\"Synchrone\",");
+        data.append("\"botId\":\"" + Utils.encodeFromUtf8ToBase64("972f1264-6d85-4a58-b5ac-da31481dda63") + "\","); //30bfa404-279b-48c7-b8b7-ba8d4adf498e
+        //data.append("\"qualificationMode\":true,");
+        data.append("\"language\":\"" + Utils.encodeFromUtf8ToBase64("fr") + "\",");
+        data.append("\"space\":\"" + Utils.encodeFromUtf8ToBase64("Defaut") + "\",");
+        data.append("\"solutionUsed\":\"" + Utils.encodeFromUtf8ToBase64("ASSISTANT") + "\",");
+        data.append("\"pureLivechat\":false,");
+        String encodedPicture = "";
+        if(bImagePath != null){
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 4;
+            Bitmap bitmap = null;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            try {
+                bitmap = BitmapFactory.decodeFile(bImagePath, options);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            }
+            catch (OutOfMemoryError err){
+                bitmap.compress(Bitmap.CompressFormat.PNG, 50, byteArrayOutputStream);
+                Log.e(APP_TAG+ ChatBotActivity.class.getSimpleName(), "Out of memory error catched");
+            }
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        }
+        data.append("\"userInput\":\"" + encodedPicture + Utils.encodeFromUtf8ToBase64(userInput) + "\",");
+        data.append("\"contextId\":\"" + Utils.encodeFromUtf8ToBase64("1982637c-1ff2-4224-8c63-c0ced20cc8ca") + "\"");
+        data.append("}}");
+
+        return data.toString();
+    }
+
+    private String getCleanText(String sEncodedHtmlText) {
+        // Base 64 decode
+        String text = Utils.decodeFromBase64ToUtf8(sEncodedHtmlText);
+        // Get text to underline
+/*
+        Pattern pattern = Pattern.compile("onclick=\"reword.*',");
+        Matcher matcher = pattern.matcher(text);
+        for (int i = 1; i < matcher.groupCount(); i++){
+            Log.d("PARSE", matcher.group(i) +" ");
+        }
+*/
+
+        // Html to Text
+        text = Html.fromHtml(text, null, new CustomTagHandler()).toString();
+        //String[] und_text = text.split("•");
+
+        return text;
+    }
 }
