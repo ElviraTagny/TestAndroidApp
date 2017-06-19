@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -200,7 +201,7 @@ public class MessageActivity extends TopActivity {
         @Override
         public void onClick(View v) {
             if(v.getId() == R.id.sendBtn){
-                if(!inputDest.getText().toString().isEmpty() && !inputMessage.getText().toString().isEmpty()) {
+                if(!TextUtils.isEmpty(inputDest.getText().toString()) && android.util.Patterns.EMAIL_ADDRESS.matcher(inputDest.getText().toString()).matches()) {
                     sendEmail(thisActivity, inputDest.getText().toString(), null, inputMessage.getText().toString());
                 }
             }
@@ -247,4 +248,5 @@ public class MessageActivity extends TopActivity {
             return null;
         }
     }
+
 }

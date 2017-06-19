@@ -24,7 +24,7 @@
     <string name="alert_permission_negative_button">REFUSER</string>
     <string name="alert_permission_positive_button">ACCEPTER</string>
     <string name="default_speech_answer">Désolé, je ne comprends pas</string>
-    <string name="send_email_hint_address">jean.dupont@domaine.com</string>
+    <string name="send_email_hint_address">jean.dupont@domaine.com;jeanne.marie@...</string>
     <string name="alert_permission_title">Permission requise</string>
     <string name="alert_permission_settings_button">PARAMETRES</string>
     <string name="file_prefix">Pic_</string>
@@ -33,4 +33,7 @@
     <string name="alert_delete_text">Voulez-vous supprimer entièrement cette conversation ?</string>
     <string name="alert_permission_text">TestApp requiert l\'accès à : %1$s. Veuillez autoriser l\'accès.</string>
     <string name="sms_sent">SMS sent !</string>
+    <string name="read_text_hint">Insérez votre texte ici</string>
+    <string name="subject_label">Objet:</string>
+    <string name="nfc_explanation">Your NFC tag value will appear here</string>
 </resources>

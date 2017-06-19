@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +22,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -34,18 +37,22 @@ import java.util.Locale;
 
 public class TopActivity extends AppCompatActivity {
 
-    public static final String APP_TAG = "TestApp - ";
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 200;
     private static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 300;
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 400;
     private static final int MY_PERMISSIONS_REQUEST_INTERNET = 500;
+    public static final int MY_PERMISSIONS_REQUEST_FINGERPRINT = 600;
+    public static final int MY_PERMISSIONS_REQUEST_NFC = 700;
+
+    public static final String APP_TAG = "TestApp - ";
     private static final String ALLOW_KEY = "ALLOWED";
     protected final int REQ_CODE_TAKE_PHOTO = 1;
     private static String currentReceiver;
     private static String currentMessage;
     private static String currentSubject;
     private static Uri currentUriFile;
+    private static Locale currentLocale;
     private TextToSpeech tts;
     protected Camera camera;
 
@@ -66,6 +73,15 @@ public class TopActivity extends AppCompatActivity {
             camera = null;
         }
         super.onPause();
+    }
+
+    protected void changeLanguage(Locale locale) {
+        Resources res = getResources();
+        Configuration conf = res.getConfiguration();
+        conf.locale = new Locale(locale.toString());
+        res.updateConfiguration(conf, res.getDisplayMetrics());
+        Locale.setDefault(locale);
+        recreate();
     }
 
     protected boolean checkPermission(String permission, int requestCode, String featureName){
@@ -206,10 +222,13 @@ public class TopActivity extends AppCompatActivity {
                 }
                 break;
             }
-            case MY_PERMISSIONS_REQUEST_INTERNET: {
+            case MY_PERMISSIONS_REQUEST_INTERNET:
+            case MY_PERMISSIONS_REQUEST_FINGERPRINT:
+            case MY_PERMISSIONS_REQUEST_NFC:
+                {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //sendEmail(this, currentReceiver, currentSubject, currentMessage);
+                    // Great!
                 }
                 break;
             }

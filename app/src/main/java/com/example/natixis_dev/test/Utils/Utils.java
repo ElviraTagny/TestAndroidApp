@@ -55,4 +55,10 @@ public class Utils {
                 Context.MODE_PRIVATE);
         return (myPrefs.getBoolean(key, false));
     }
+
+    public static SharedPreferences getSharedPreferences(Context context) {
+        SharedPreferences myPrefs = context.getSharedPreferences(APP_PREF,
+                Context.MODE_PRIVATE);
+        return myPrefs;
+    }
 }

@@ -6,7 +6,7 @@
     <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
     <string name="tap_on_mic">Tap on micro to speak</string>
     <string name="speech_default">Sorry ! I don\'t understand.</string>
-    <string name="welcome_title">Welcome to this POC</string>
+    <string name="welcome_title">Toto</string>
     <string name="input_hint">Your speech will appear here</string>
     <string name="readButton">Read</string>
     <string name="input_url_hint">Enter URL here</string>
@@ -27,7 +27,7 @@
     <string name="alert_permission_negative_button">DON\'T ALLOW</string>
     <string name="alert_permission_positive_button">ALLOW</string>
     <string name="default_speech_answer">Sorry ! I don\'t understand.</string>
-    <string name="send_email_hint_address">john.doe@domain.com</string>
+    <string name="send_email_hint_address">john.doe@domain.com;jane.mary@...</string>
     <string name="alert_permission_title">Permission required</string>
     <string name="alert_permission_settings_button">SETTINGS</string>
     <string name="file_prefix">Pic_</string>
@@ -36,4 +36,11 @@
     <string name="alert_delete_text">Do you want to completely delete this conversation ?</string>
     <string name="alert_permission_text">TestApp needs to access the %1$s. Please grant permission.</string>
     <string name="sms_sent">SMS sent !</string>
+    <string name="read_text_hint">Insert text here</string>
+    <string name="subject_label">Subject:</string>
+    <string name="title_fingerprint">One-touch Sign In</string>
+    <string name="desc_fingerprint">Please place your fingertip on the scanner to verify your identity</string>
+    <string name="note">(Fingerprint sign in makes your app login much faster. Your device should have at least one fingerprint registered in device settings)</string>
+    <string name="activity_home_desc">You have successfully logged in with fingerprint authentication</string>
+    <string name="nfc_explanation">Your NFC tag value will appear here</string>
 </resources>

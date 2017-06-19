@@ -9,34 +9,57 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.natixis_dev.test.MessageActivity$PlaceholderFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/dest_label"
-        android:layout_margin="@dimen/content_margin"
-        android:id="@+id/destLabel"
-        android:padding="10dp"
-        android:gravity="center"/>
-
-    <EditText
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/destLabel"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/content_margin"
-        android:layout_marginRight="@dimen/content_margin"
-        android:layout_marginBottom="10dp"
-        android:id="@+id/inputDest"
-        android:hint="@string/send_email_hint_address"
-        android:inputType="textEmailAddress"/>
+        android:orientation="horizontal"
+        android:id="@+id/dest"
+        android:gravity="center_vertical"
+        android:layout_margin="15dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dest_label"
+            android:id="@+id/destLabel"
+            android:layout_marginRight="@dimen/content_margin"
+            android:paddingLeft="10dp"
+            android:gravity="right"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/inputDest"
+            android:hint="@string/send_email_hint_address"
+            android:inputType="textEmailAddress"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/subject"
+        android:orientation="horizontal"
+        android:layout_below="@id/dest"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subject_label"
+            android:id="@+id/subjectLabel" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/inputSubject"/>
+    </LinearLayout>
 
     <EditText
-        android:layout_height="250dp"
+        android:layout_height="200dp"
         android:layout_width="match_parent"
-        android:layout_marginLeft="@dimen/content_margin"
-        android:layout_marginRight="@dimen/content_margin"
-        android:layout_marginBottom="10dp"
-        android:layout_below="@id/inputDest"
+        android:layout_margin="15dp"
+        android:layout_below="@id/subject"
         android:layout_centerHorizontal="true"
         android:id="@+id/message"
         android:gravity="start"

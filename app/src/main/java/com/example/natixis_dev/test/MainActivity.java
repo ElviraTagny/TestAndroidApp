@@ -1,6 +1,11 @@
 package com.example.natixis_dev.test;
 
+import android.app.Application;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.MenuRes;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,9 +22,13 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.natixis_dev.test.Utils.TopActivity;
+import com.example.natixis_dev.test.Utils.Utils;
+
+import java.util.Locale;
 
 import butterknife.BindView;
 
@@ -27,7 +37,10 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
     @BindView(R.id.menuRecyclerView)
     RecyclerView menuRecyclerView;
 
-    private String[] menuList = {"Speech to text", "Text to Speech", "TouchID feature", "Send a SMS/Email", "Take a picture", "Open a webview", "Watch", "Glasses", "ChatBot"};
+    @BindView(R.id.language_button)
+    Button languageButton;
+
+    private String[] menuList = {"Speech to text", "Text to Speech", "TouchID feature", "Send a SMS/Email", "Take a picture", "Open a webview", "ChatBot", "NFC", "Scan QR code", "Watch", "Glasses"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +64,7 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
         }
         catch (NullPointerException e){
         }
+        Log.d(APP_TAG, "Locale " + Locale.getDefault().toString());
 
         menuRecyclerView = (RecyclerView) findViewById(R.id.menuRecyclerView);
         menuRecyclerView.setRecyclerListener(this);
@@ -62,6 +76,31 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
 
         MenuAdapter menuAdapter = new MenuAdapter(menuList);
         menuRecyclerView.setAdapter(menuAdapter);
+
+        languageButton = (Button) findViewById(R.id.language_button);
+        //init button
+        if(Locale.getDefault().toString().contains(Locale.FRENCH.toString())){
+            languageButton.setBackgroundResource(R.drawable.uk_flag);
+        }
+        else if(Locale.getDefault().toString().contains(Locale.ENGLISH.toString())){
+            languageButton.setBackgroundResource(R.drawable.fr_flag);
+        }
+        languageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(APP_TAG, "Locale " + Locale.getDefault().toString());
+                if(Locale.getDefault().toString().contains(Locale.FRENCH.toString())){
+                    //languageButton.setBackgroundResource(R.drawable.fr_flag);
+                    //Locale.setDefault(Locale.UK);
+                    changeLanguage(Locale.UK);
+                }
+                else if(Locale.getDefault().toString().contains(Locale.ENGLISH.toString())){
+                    //languageButton.setBackgroundResource(R.drawable.uk_flag);
+                    //Locale.setDefault(Locale.FRANCE);
+                    changeLanguage(Locale.FRANCE);
+                }
+            }
+        });
     }
 
     @Override
@@ -93,36 +132,6 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        Log.w(APP_TAG + MainActivity.class.getSimpleName() , "onInterceptTouchEvent");
-    /*    View child = rv.findChildViewUnder(e.getX(), e.getY());
-        MenuAdapter.ViewHolder vh = (MenuAdapter.ViewHolder) rv.findContainingViewHolder(child);
-
-        Intent intent = null;
-        switch (vh.getLayoutPosition()){
-            case 0:
-                intent = new Intent(this, SpeechToTextActivity.class);
-                startActivity(intent);
-                break;
-            case 1:
-                intent = new Intent(this, TextToSpeechActivity.class);
-                startActivity(intent);
-                break;
-            case 3:
-                intent = new Intent(this, MessageActivity.class);
-                startActivity(intent);
-                break;
-            case 5:
-                intent = new Intent(this, WebviewActivity.class);
-                startActivity(intent);
-                break;
-            case 8:
-                intent = new Intent(this, ChatBotActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                break;
-        }*/
-
         return false;
     }
 
@@ -159,6 +168,10 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
                                 intent = new Intent(MainActivity.this, TextToSpeechActivity.class);
                                 startActivity(intent);
                                 break;
+                            case 2:
+                                intent = new Intent(MainActivity.this, FingerPrintActivity.class);
+                                startActivity(intent);
+                                break;
                             case 3:
                                 intent = new Intent(MainActivity.this, MessageActivity.class);
                                 startActivity(intent);
@@ -171,8 +184,12 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
                                 intent = new Intent(MainActivity.this, WebviewActivity.class);
                                 startActivity(intent);
                                 break;
-                            case 8:
+                            case 6:
                                 intent = new Intent(MainActivity.this, ChatBotActivity.class);
+                                startActivity(intent);
+                                break;
+                            case 7:
+                                intent = new Intent(MainActivity.this, NfcActivity.class);
                                 startActivity(intent);
                                 break;
                             default:
