@@ -61,7 +61,7 @@ public class TopActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_top);
+        //setContentView(R.layout.activity_top);
         ButterKnife.bind(this);
     }
 

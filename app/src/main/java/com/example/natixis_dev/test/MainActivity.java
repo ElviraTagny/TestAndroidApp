@@ -35,10 +35,10 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends TopActivity implements RecyclerView.RecyclerListener, RecyclerView.OnItemTouchListener {
 
-    //@BindView(R.id.menuRecyclerView)
+    @BindView(R.id.menuRecyclerView)
     RecyclerView menuRecyclerView;
 
-    //@BindView(R.id.language_button)
+    @BindView(R.id.language_button)
     Button languageButton;
 
     private String[] menuList = {"Speech to text", "Text to Speech", "TouchID feature", "Send a SMS/Email", "Take a picture",
@@ -47,8 +47,8 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        super.onCreate(savedInstanceState);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -69,7 +69,7 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
         }
         Log.d(APP_TAG, "Locale " + Locale.getDefault().toString());
 
-        menuRecyclerView = (RecyclerView) findViewById(R.id.menuRecyclerView);
+        //menuRecyclerView = (RecyclerView) findViewById(R.id.menuRecyclerView);
         menuRecyclerView.setRecyclerListener(this);
         menuRecyclerView.addOnItemTouchListener(this);
 
@@ -80,7 +80,7 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
         MenuAdapter menuAdapter = new MenuAdapter(menuList);
         menuRecyclerView.setAdapter(menuAdapter);
 
-        languageButton = (Button) findViewById(R.id.language_button);
+        //languageButton = (Button) findViewById(R.id.language_button);
         //init button
         if(Locale.getDefault().toString().contains(Locale.FRENCH.toString())){
             languageButton.setBackgroundResource(R.drawable.uk_flag);
