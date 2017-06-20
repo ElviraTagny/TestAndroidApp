@@ -12,6 +12,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -29,7 +30,7 @@ public class WebviewActivity extends TopActivity implements View.OnClickListener
     WebView myBrowser;
 
     @BindView(R.id.go_button)
-    View goButton;
+    Button goButton;
 
     @BindView(R.id.inputUrl)
     EditText inputUrl;
@@ -39,11 +40,11 @@ public class WebviewActivity extends TopActivity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
 
-        goButton = findViewById(R.id.go_button);
+        //goButton = findViewById(R.id.go_button);
         goButton.setOnClickListener(this);
-        inputUrl = (EditText) findViewById(R.id.inputUrl);
+        //inputUrl = (EditText) findViewById(R.id.inputUrl);
 
-        myBrowser = (WebView) findViewById(R.id.webview);
+        //myBrowser = (WebView) findViewById(R.id.webview);
         myBrowser.setWebViewClient(new MyBrowser());
         myBrowser.getSettings().setLoadsImagesAutomatically(true);
         myBrowser.getSettings().setJavaScriptEnabled(true);

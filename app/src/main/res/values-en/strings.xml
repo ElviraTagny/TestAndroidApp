@@ -54,4 +54,5 @@
     <string name="video_button">Snap</string>
     <string name="photo_button">Photo</string>
     <string name="phonenumber_hint">+33 1 23 45 67 89</string>
+    <string name="nfc_input_hint">Enter data to send here</string>
 </resources>

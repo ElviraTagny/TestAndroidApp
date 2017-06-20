@@ -7,11 +7,13 @@ import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,17 +23,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.jar.Manifest;
 
-public class NfcActivity extends TopActivity {
+public class NfcActivity extends TopActivity implements NfcAdapter.CreateNdefMessageCallback {
 
     private NfcAdapter mNfcAdapter;
     public static final String MIME_TEXT_PLAIN = "text/plain";
     public TextView mNfcTextView;
+    public EditText mNfcEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc);
-        mNfcTextView = (TextView) findViewById(R.id.nfc_explanation);
+        mNfcTextView = (TextView) findViewById(R.id.nfc_received_data);
+        mNfcEditText = (EditText) findViewById(R.id.nfc_input_data);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
@@ -48,6 +52,9 @@ public class NfcActivity extends TopActivity {
         } else {
             mNfcTextView.setText(R.string.nfc_explanation);
         }
+
+        mNfcAdapter.setNdefPushMessageCallback(this, this);
+
         checkPermission(android.Manifest.permission.NFC, MY_PERMISSIONS_REQUEST_NFC, "NFC");
         handleIntent(getIntent());
     }
@@ -82,9 +89,8 @@ public class NfcActivity extends TopActivity {
             } else {
                 Log.d(APP_TAG, "Wrong mime type: " + type);
             }
-        } else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
+        } else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action) || NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
 
-            // In case we would still use the Tech Discovered Intent
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             String[] techList = tag.getTechList();
             String searchedTech = Ndef.class.getName();
@@ -104,18 +110,24 @@ public class NfcActivity extends TopActivity {
 
         final PendingIntent pendingIntent = PendingIntent.getActivity(activity.getApplicationContext(), 0, intent, 0);
 
-        IntentFilter[] filters = new IntentFilter[1];
+        IntentFilter[] filters = new IntentFilter[3];
         String[][] techList = new String[][]{};
 
         // Notice that this is the same filter as in our manifest.
         filters[0] = new IntentFilter();
         filters[0].addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        filters[0].addCategory(Intent.CATEGORY_DEFAULT);
         try {
             filters[0].addDataType(MIME_TEXT_PLAIN);
         } catch (IntentFilter.MalformedMimeTypeException e) {
             throw new RuntimeException("Check your mime type.");
         }
+
+        filters[1] = new IntentFilter();
+        filters[1].addAction(NfcAdapter.ACTION_TECH_DISCOVERED);
+
+        filters[2] = new IntentFilter();
+        filters[2].addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
+        filters[2].addCategory(Intent.CATEGORY_DEFAULT);
 
         adapter.enableForegroundDispatch(activity, pendingIntent, filters, techList);
     }
@@ -125,7 +137,15 @@ public class NfcActivity extends TopActivity {
      * @param adapter The {@link NfcAdapter} used for the foreground dispatch.
      */
     public static void stopForegroundDispatch(final Activity activity, NfcAdapter adapter) {
-        adapter.disableForegroundDispatch(activity);
+//        adapter.disableForegroundDispatch(activity);
+    }
+
+    @Override
+    public NdefMessage createNdefMessage(NfcEvent event) {
+        String message = mNfcEditText.getText().toString();
+        NdefRecord ndefRecord = NdefRecord.createMime("text/plain", message.getBytes());
+        NdefMessage ndefMessage = new NdefMessage(ndefRecord);
+        return ndefMessage;
     }
 
     private class NdefReaderTask extends AsyncTask<Tag, Void, String> {

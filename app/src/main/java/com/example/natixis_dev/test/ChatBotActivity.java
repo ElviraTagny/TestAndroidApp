@@ -52,6 +52,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
@@ -300,18 +301,23 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
         private Bitmap bitmap;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
+            @BindView(R.id.textmessage)
             public TextView messageTextView;
+            @BindView(R.id.image)
             public ImageView imageView;
+            @BindView(R.id.datemessage)
             public TextView dateTextView;
             public int mPosition;
+            @BindView(R.id.btnRead)
             public ImageButton btnRead;
 
             public ViewHolder(View v) {
                 super(v);
-                messageTextView = (TextView) v.findViewById(R.id.textmessage);
-                imageView = (ImageView) v.findViewById(R.id.image);
-                dateTextView = (TextView) v.findViewById(R.id.datemessage);
-                btnRead = (ImageButton) v.findViewById(R.id.btnRead);
+                ButterKnife.bind(this, v);
+                //messageTextView = (TextView) v.findViewById(R.id.textmessage);
+                //imageView = (ImageView) v.findViewById(R.id.image);
+                //dateTextView = (TextView) v.findViewById(R.id.datemessage);
+                //btnRead = (ImageButton) v.findViewById(R.id.btnRead);
                 if(btnRead != null) btnRead.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

@@ -6,8 +6,15 @@
     android:layout_height="match_parent"
     tools:context="com.example.natixis_dev.test.NfcActivity">
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/nfc_input_data"
+        android:minHeight="200dp"
+        android:hint="@string/nfc_input_hint"/>
+
     <TextView
-        android:id="@+id/nfc_explanation"
+        android:id="@+id/nfc_received_data"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/nfc_explanation"

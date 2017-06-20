@@ -35,6 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import butterknife.ButterKnife;
+
 public class TopActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
@@ -60,6 +62,7 @@ public class TopActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top);
+        ButterKnife.bind(this);
     }
 
     public void onPause(){

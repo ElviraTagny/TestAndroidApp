@@ -31,16 +31,19 @@ import com.example.natixis_dev.test.Utils.Utils;
 import java.util.Locale;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends TopActivity implements RecyclerView.RecyclerListener, RecyclerView.OnItemTouchListener {
 
-    @BindView(R.id.menuRecyclerView)
+    //@BindView(R.id.menuRecyclerView)
     RecyclerView menuRecyclerView;
 
-    @BindView(R.id.language_button)
+    //@BindView(R.id.language_button)
     Button languageButton;
 
-    private String[] menuList = {"Speech to text", "Text to Speech", "TouchID feature", "Send a SMS/Email", "Take a picture", "Open a webview", "ChatBot", "NFC", "Scan QR code", "Watch", "Glasses"};
+    private String[] menuList = {"Speech to text", "Text to Speech", "TouchID feature", "Send a SMS/Email", "Take a picture",
+            "Open a webview", "ChatBot", "NFC", "Scan code", "Watch",
+            "Glasses", "Twitter", "LinkedIn", "NFC Payment", "OCR", "Realite augmentee"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,12 +152,14 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
         private String[] mDataset;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
+            @BindView(R.id.label)
             public TextView mTextView;
             public int mPosition;
 
             public ViewHolder(View v) {
                 super(v);
-                mTextView = (TextView) v.findViewById(R.id.label);
+                ButterKnife.bind(this, v);
+                //mTextView = (TextView) v.findViewById(R.id.label);
                 mTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
