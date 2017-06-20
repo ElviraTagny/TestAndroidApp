@@ -164,7 +164,7 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
         }
         if(messages.isEmpty()) {
             //welcome message
-            addMessage("DYDU à votre disposition ! Que puis-je faire pour vous?", null, false);
+            addMessage(getString(R.string.dudy_welcome_message), null, false);
         }
 
 

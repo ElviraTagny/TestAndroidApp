@@ -26,7 +26,7 @@
     <string name="alert_permission_negative_button">DON\'T ALLOW</string>
     <string name="alert_permission_positive_button">ALLOW</string>
     <string name="default_speech_answer">Sorry ! I don\'t understand.</string>
-    <string name="send_email_hint_address">john.doe@domain.com;jane.mary@...</string>
+    <string name="email_address_hint">john.doe@domain.com;jane.mary@...</string>
     <string name="alert_permission_title">Permission required</string>
     <string name="alert_permission_settings_button">SETTINGS</string>
     <string name="file_prefix">Pic_</string>
@@ -37,5 +37,21 @@
     <string name="sms_sent">SMS sent !</string>
     <string name="read_text_hint">Insert text here</string>
     <string name="subject_label">Subject:</string>
+    <string name="dudy_welcome_message">DYDU at your service ! How can I help ?</string>
+    <string name="title_fingerprint">One-touch Sign In</string>
+    <string name="desc_fingerprint">Please place your fingertip on the scanner to verify your identity</string>
+    <string name="note">(Fingerprint sign in makes your app login much faster. Your device should have at least one fingerprint registered in device settings)</string>
+    <string name="activity_home_desc">You have successfully logged in with fingerprint authentication</string>
+    <string name="no_fingerprint_feature">Your Device does not have a Fingerprint Sensor</string>
+    <string name="no_fingerprint_regsitered">Register at least one fingerprint in Settings</string>
+    <string name="no_lockscreen_security">Lock screen security not enabled in Settings</string>
+    <string name="fingerprint_auth_error">Fingerprint Authentication error</string>
+    <string name="fingerprint_auth_help">Fingerprint Authentication help</string>
+    <string name="fingerprint_auth_failed">Fingerprint Authentication failed</string>
+    <string name="fingerprint_auth_succeeded">Fingerprint Authentication succeeded</string>
     <string name="nfc_explanation">Your NFC tag value will appear here</string>
+    <string name="nfc_disabled">NFC is disabled</string>
+    <string name="video_button">Snap</string>
+    <string name="photo_button">Photo</string>
+    <string name="phonenumber_hint">+33 1 23 45 67 89</string>
 </resources>

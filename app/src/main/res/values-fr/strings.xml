@@ -24,7 +24,7 @@
     <string name="alert_permission_negative_button">REFUSER</string>
     <string name="alert_permission_positive_button">ACCEPTER</string>
     <string name="default_speech_answer">Désolé, je ne comprends pas</string>
-    <string name="send_email_hint_address">jean.dupont@domaine.com;jeanne.marie@...</string>
+    <string name="email_address_hint">jean.dupont@domaine.com;jeanne.marie@...</string>
     <string name="alert_permission_title">Permission requise</string>
     <string name="alert_permission_settings_button">PARAMETRES</string>
     <string name="file_prefix">Pic_</string>
@@ -35,5 +35,21 @@
     <string name="sms_sent">SMS sent !</string>
     <string name="read_text_hint">Insérez votre texte ici</string>
     <string name="subject_label">Objet:</string>
-    <string name="nfc_explanation">Your NFC tag value will appear here</string>
+    <string name="dudy_welcome_message">DYDU à votre disposition ! Que puis-je faire pour vous?</string>
+    <string name="title_fingerprint">Lecture d\'empreinte</string>
+    <string name="desc_fingerprint">Veuillez placer votre doigt sur le scanner pour vérifier votre identité</string>
+    <string name="note">(La lecture d\'empreinte permet une authentification plus rapide. Vous devez avoir enregistré au moins une empreinte dans les paramètres de votre appareil)</string>
+    <string name="activity_home_desc">Authentification par lecture d\'empreinte réussie !</string>
+    <string name="no_fingerprint_feature">Votre appareil n\'a pas de lecteur d\'empreintes</string>
+    <string name="no_fingerprint_regsitered">Veuillez enregistrer au moins une empreinte dans les paramètres de votre appareil</string>
+    <string name="no_lockscreen_security">Le vérouillage d\'écran n\'est pas activé dans les paramètres de votre appareil</string>
+    <string name="fingerprint_auth_error">Erreur d\'authentification par lecture d\'empreinte:</string>
+    <string name="fingerprint_auth_help">Lecture d\'empreinte Aide:</string>
+    <string name="fingerprint_auth_failed">Empreinte non reconnue</string>
+    <string name="fingerprint_auth_succeeded">Authentification réussie</string>
+    <string name="nfc_explanation">Le contenu de votre tag NFC apparaitra ici</string>
+    <string name="nfc_disabled">Fonctionnalité NFC désactivée</string>
+    <string name="video_button">Snap</string>
+    <string name="photo_button">Photo</string>
+    <string name="phonenumber_hint">+33 1 23 45 67 89</string>
 </resources>

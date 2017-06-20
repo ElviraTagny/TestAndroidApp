@@ -56,17 +56,17 @@ public class FingerPrintActivity extends TopActivity {
         textView = (TextView) findViewById(R.id.errorText);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(!fingerprintManager.isHardwareDetected()){
-                textView.setText("Your Device does not have a Fingerprint Sensor");
+                textView.setText(getString(R.string.no_fingerprint_feature));
             } else {
                 // Checks whether fingerprint permission is set on manifest
                 if (checkPermission(Manifest.permission.USE_FINGERPRINT, MY_PERMISSIONS_REQUEST_FINGERPRINT, "FingerPrint authentication")) {
                     // Check whether at least one fingerprint is registered
                     if (!fingerprintManager.hasEnrolledFingerprints()) {
-                        textView.setText("Register at least one fingerprint in Settings");
+                        textView.setText(getString(R.string.no_fingerprint_regsitered));
                     } else{
                         // Checks whether lock screen security is enabled or not
                         if (!keyguardManager.isKeyguardSecure()) {
-                            textView.setText("Lock screen security not enabled in Settings");
+                            textView.setText(getString(R.string.no_lockscreen_security));
                         }else{
                             generateKey();
 
@@ -81,7 +81,7 @@ public class FingerPrintActivity extends TopActivity {
             }
         }
         else{
-            textView.setText("Your Device does not have a Fingerprint Sensor");
+            textView.setText(getString(R.string.no_fingerprint_feature));
         }
     }
 
@@ -160,22 +160,22 @@ public class FingerPrintActivity extends TopActivity {
 
         @Override
         public void onAuthenticationError(int errMsgId, CharSequence errString) {
-            textView.setText("Fingerprint Authentication error\n" + errString);
+            textView.setText(getString(R.string.fingerprint_auth_error) + errString);
         }
 
         @Override
         public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
-            textView.setText("Fingerprint Authentication help\n" + helpString);
+            textView.setText(getString(R.string.fingerprint_auth_help) + helpString);
         }
 
         @Override
         public void onAuthenticationFailed() {
-            textView.setText("Fingerprint Authentication failed.");
+            textView.setText(getString(R.string.fingerprint_auth_failed));
         }
 
         @Override
         public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-            textView.setText("Fingerprint Authentication succeeded.");
+            textView.setText(getString(R.string.fingerprint_auth_succeeded));
         }
     }
 }

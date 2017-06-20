@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/inputDest"
-            android:hint="@string/send_email_hint_address"
+            android:hint="@string/email_address_hint"
             android:inputType="textEmailAddress"/>
 
     </LinearLayout>

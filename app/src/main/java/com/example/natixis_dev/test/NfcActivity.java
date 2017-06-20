@@ -44,7 +44,7 @@ public class NfcActivity extends TopActivity {
         }
 
         if (!mNfcAdapter.isEnabled()) {
-            mNfcTextView.setText("NFC is disabled.");
+            mNfcTextView.setText(getString(R.string.nfc_disabled));
         } else {
             mNfcTextView.setText(R.string.nfc_explanation);
         }
@@ -185,7 +185,7 @@ public class NfcActivity extends TopActivity {
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
-                mNfcTextView.setText("Read content: " + result);
+                mNfcTextView.setText("Content: " + result);
             }
         }
     }
