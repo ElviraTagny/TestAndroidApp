@@ -283,53 +283,22 @@ public class TopActivity extends AppCompatActivity {
         return currentUriFile;
     }
 
-    /*protected void sendEmail() {
-        if (checkPermission(Manifest.permission.INTERNET, MY_PERMISSIONS_REQUEST_INTERNET, "Internet")) {
-            Toast.makeText(this, "Not yet implemented.",
-                    Toast.LENGTH_LONG).show();
-            // Open a dedicated app with intent chooser
+    public static void sendEmail(TopActivity activity, String[] emails, String subject, String message){
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        //emailIntent.setType("plain/text");
+        emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, emails);
+        if (subject != null) {
+            emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
         }
-    }*/
-
-    public static void sendEmail(TopActivity activity, String sendToAddress, String subject, String message){
-        //if (activity.checkPermission(Manifest.permission.INTERNET, MY_PERMISSIONS_REQUEST_INTERNET, "Internet")) {
-            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-            emailIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
-            //emailIntent.setType("plain/text");
-            String[] emails = null;
-            if(sendToAddress.contains(";")){
-                emails = sendToAddress.split(";");
-            } else {
-                emails = new String[1];
-                emails[0] = sendToAddress;
-            }
-            emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, emails);
-            if (subject != null) {
-                emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-            }
-            if (message != null) {
-                emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, message);
-            }
-            /*if (filename != null)
-                emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+ filename));*/
-            String chooserTitle = activity.getString(R.string.email_chooser_title);
-            activity.startActivity(Intent.createChooser(emailIntent, chooserTitle));
-        //}
-        //currentReceiver = sendToAddress;
-        //currentMessage = message;
-        //currentSubject = subject;
+        if (message != null) {
+            emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, message);
+        }
+        /*if (filename != null)
+               emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+ filename));*/
+        String chooserTitle = activity.getString(R.string.email_chooser_title);
+        activity.startActivity(Intent.createChooser(emailIntent, chooserTitle));
     }
-
-    /*protected void sendSMS(String sendToNum, String message) {
-        if (checkPermission(Manifest.permission.SEND_SMS, MY_PERMISSIONS_REQUEST_SEND_SMS, "SMS")) {
-            currentSMSReceiver = sendToNum;
-            currentSMSMessage = message;
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(sendToNum.replace("+", "00"), null, message, null, null);
-            Toast.makeText(this, "SMS sent.",
-                    Toast.LENGTH_LONG).show();
-        }
-    }*/
 
     public static void sendSMS(TopActivity activity, String sendToNum, String message) {
         if (activity.checkPermission(Manifest.permission.SEND_SMS, MY_PERMISSIONS_REQUEST_SEND_SMS, "SMS")) {

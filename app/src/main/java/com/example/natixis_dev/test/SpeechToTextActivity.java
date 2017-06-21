@@ -39,28 +39,8 @@ public class SpeechToTextActivity extends TopActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speech_to_text);
-
-
-        txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
-        btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
-
-        btnSpeak.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                promptSpeechInput();
-            }
-        });
-
-        answerButton = (Button) findViewById(R.id.answerButton);
-        answerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                read(getString(R.string.default_speech_answer));
-            }
-        });
+        super.onCreate(savedInstanceState);
     }
 
     /**
@@ -83,6 +63,10 @@ public class SpeechToTextActivity extends TopActivity {
         }
     }
 
+    @OnClick(R.id.answerButton)
+    public void read() {
+        read(getString(R.string.default_speech_answer));
+    }
     /**
      * Receiving speech input
      * */

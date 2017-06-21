@@ -32,6 +32,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends TopActivity implements RecyclerView.RecyclerListener, RecyclerView.OnItemTouchListener {
 
@@ -68,42 +69,34 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
         catch (NullPointerException e){
         }
         Log.d(APP_TAG, "Locale " + Locale.getDefault().toString());
-
-        //menuRecyclerView = (RecyclerView) findViewById(R.id.menuRecyclerView);
         menuRecyclerView.setRecyclerListener(this);
         menuRecyclerView.addOnItemTouchListener(this);
-
-        // use a linear layout manager
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         menuRecyclerView.setLayoutManager(mLayoutManager);
-
         MenuAdapter menuAdapter = new MenuAdapter(menuList);
         menuRecyclerView.setAdapter(menuAdapter);
 
-        //languageButton = (Button) findViewById(R.id.language_button);
-        //init button
         if(Locale.getDefault().toString().contains(Locale.FRENCH.toString())){
             languageButton.setBackgroundResource(R.drawable.uk_flag);
         }
         else if(Locale.getDefault().toString().contains(Locale.ENGLISH.toString())){
             languageButton.setBackgroundResource(R.drawable.fr_flag);
         }
-        languageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(APP_TAG, "Locale " + Locale.getDefault().toString());
-                if(Locale.getDefault().toString().contains(Locale.FRENCH.toString())){
-                    //languageButton.setBackgroundResource(R.drawable.fr_flag);
-                    //Locale.setDefault(Locale.UK);
-                    changeLanguage(Locale.UK);
-                }
-                else if(Locale.getDefault().toString().contains(Locale.ENGLISH.toString())){
-                    //languageButton.setBackgroundResource(R.drawable.uk_flag);
-                    //Locale.setDefault(Locale.FRANCE);
-                    changeLanguage(Locale.FRANCE);
-                }
-            }
-        });
+    }
+
+    @OnClick(R.id.language_button)
+    public void changeLanguage(){
+        Log.d(APP_TAG, "Locale " + Locale.getDefault().toString());
+        if(Locale.getDefault().toString().contains(Locale.FRENCH.toString())){
+            //languageButton.setBackgroundResource(R.drawable.fr_flag);
+            //Locale.setDefault(Locale.UK);
+            changeLanguage(Locale.UK);
+        }
+        else if(Locale.getDefault().toString().contains(Locale.ENGLISH.toString())){
+            //languageButton.setBackgroundResource(R.drawable.uk_flag);
+            //Locale.setDefault(Locale.FRANCE);
+            changeLanguage(Locale.FRANCE);
+        }
     }
 
     @Override
@@ -159,49 +152,47 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
             public ViewHolder(View v) {
                 super(v);
                 ButterKnife.bind(this, v);
-                //mTextView = (TextView) v.findViewById(R.id.label);
-                mTextView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = null;
-                        switch ((int) mTextView.getTag()){
-                            case 0:
-                                intent = new Intent(MainActivity.this, SpeechToTextActivity.class);
-                                startActivity(intent);
-                                break;
-                            case 1:
-                                intent = new Intent(MainActivity.this, TextToSpeechActivity.class);
-                                startActivity(intent);
-                                break;
-                            case 2:
-                                intent = new Intent(MainActivity.this, FingerPrintActivity.class);
-                                startActivity(intent);
-                                break;
-                            case 3:
-                                intent = new Intent(MainActivity.this, MessageActivity.class);
-                                startActivity(intent);
-                                break;
-                            case 4:
-                                intent = new Intent(MainActivity.this, PhotoVideoActivity.class);
-                                startActivity(intent);
-                                break;
-                            case 5:
-                                intent = new Intent(MainActivity.this, WebviewActivity.class);
-                                startActivity(intent);
-                                break;
-                            case 6:
-                                intent = new Intent(MainActivity.this, ChatBotActivity.class);
-                                startActivity(intent);
-                                break;
-                            case 7:
-                                intent = new Intent(MainActivity.this, NfcActivity.class);
-                                startActivity(intent);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
+            }
+
+            @OnClick(R.id.label)
+            public void goToNextPage(){
+                Intent intent = null;
+                switch ((int) mTextView.getTag()){
+                    case 0:
+                        intent = new Intent(MainActivity.this, SpeechToTextActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 1:
+                        intent = new Intent(MainActivity.this, TextToSpeechActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 2:
+                        intent = new Intent(MainActivity.this, FingerPrintActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 3:
+                        intent = new Intent(MainActivity.this, MessageActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 4:
+                        intent = new Intent(MainActivity.this, PhotoVideoActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 5:
+                        intent = new Intent(MainActivity.this, WebviewActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 6:
+                        intent = new Intent(MainActivity.this, ChatBotActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 7:
+                        intent = new Intent(MainActivity.this, NfcActivity.class);
+                        startActivity(intent);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             public void setPosition(int position) {

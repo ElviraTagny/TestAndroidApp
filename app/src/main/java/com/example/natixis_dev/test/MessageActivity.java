@@ -33,6 +33,10 @@ import android.widget.Toast;
 
 import com.example.natixis_dev.test.Utils.TopActivity;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class MessageActivity extends TopActivity {
 
     private static MessageActivity thisActivity;
@@ -50,12 +54,13 @@ public class MessageActivity extends TopActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    @BindView(R.id.container)
+    protected ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+        super.onCreate(savedInstanceState);
 
         thisActivity = this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -64,9 +69,6 @@ public class MessageActivity extends TopActivity {
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -109,11 +111,14 @@ public class MessageActivity extends TopActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment implements View.OnClickListener {
+    public static class PlaceholderFragment extends Fragment/* implements View.OnClickListener*/ {
 
-        private View sendButton;
-        private EditText inputMessage;
-        private EditText inputDest;
+        @BindView(R.id.sendBtn)
+        public View sendButton;
+        @BindView(R.id.message)
+        public EditText inputMessage;
+        @BindView(R.id.inputDest)
+        public EditText inputDest;
 
         /**
          * The fragment argument representing the section number for this
@@ -140,31 +145,29 @@ public class MessageActivity extends TopActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_message, container, false);
-            sendButton = rootView.findViewById(R.id.sendBtn);
-            sendButton.setOnClickListener(this);
-            inputDest = (EditText) rootView.findViewById(R.id.inputDest);
-            inputMessage = (EditText) rootView.findViewById(R.id.message);
+            ButterKnife.bind(this, rootView);
             return rootView;
         }
 
-        @Override
-        public void onClick(View v) {
-            if(v.getId() == R.id.sendBtn){
+        @OnClick(R.id.sendBtn)
+        public void send() {
                 if(!inputDest.getText().toString().isEmpty() && !inputMessage.getText().toString().isEmpty()) {
                     sendSMS(thisActivity, inputDest.getText().toString(), inputMessage.getText().toString());
                 }
-            }
         }
     }
 
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment2 extends Fragment implements View.OnClickListener {
+    public static class PlaceholderFragment2 extends Fragment /*implements View.OnClickListener*/ {
 
-        private View sendButton;
-        private EditText inputMessage;
-        private EditText inputDest;
+        @BindView(R.id.sendBtn)
+        public View sendButton;
+        @BindView(R.id.message)
+        public EditText inputMessage;
+        @BindView(R.id.inputDest)
+        public EditText inputDest;
 
         /**
          * The fragment argument representing the section number for this
@@ -191,19 +194,40 @@ public class MessageActivity extends TopActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_email, container, false);
-            sendButton = rootView.findViewById(R.id.sendBtn);
-            sendButton.setOnClickListener(this);
-            inputDest = (EditText) rootView.findViewById(R.id.inputDest);
-            inputMessage = (EditText) rootView.findViewById(R.id.message);
+            ButterKnife.bind(this, rootView);
             return rootView;
         }
 
-        @Override
-        public void onClick(View v) {
-            if(v.getId() == R.id.sendBtn){
-                if(!TextUtils.isEmpty(inputDest.getText().toString()) && android.util.Patterns.EMAIL_ADDRESS.matcher(inputDest.getText().toString()).matches()) {
-                    sendEmail(thisActivity, inputDest.getText().toString(), null, inputMessage.getText().toString());
+        @OnClick(R.id.sendBtn)
+        public void send() {
+            String inputAddress = inputDest.getText().toString();
+            if (!TextUtils.isEmpty(inputAddress)) {
+                boolean send = true;
+                String[] emails = new String[1];
+                if (inputAddress.contains(";")) {
+                    emails = inputAddress.split(";");
+                    int i = 0;
+                    while (send && i < emails.length) {
+                        if (android.util.Patterns.EMAIL_ADDRESS.matcher(emails[i]).matches())
+                            send = true;
+                        else send = false;
+                        i++;
+                    }
+
+                } else {
+                    emails[0] = inputAddress;
+                    if (android.util.Patterns.EMAIL_ADDRESS.matcher(emails[0]).matches())
+                        send = true;
+                    else send = false;
                 }
+                if (send) {
+                    sendEmail(thisActivity, emails, null, inputMessage.getText().toString());
+                }
+                else {
+                    Toast.makeText(thisActivity, "Adresse invalide", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(thisActivity, "Adresse requise", Toast.LENGTH_SHORT).show();
             }
         }
     }

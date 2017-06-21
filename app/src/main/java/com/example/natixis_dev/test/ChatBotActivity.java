@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
@@ -61,7 +62,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ChatBotActivity extends TopActivity implements View.OnClickListener, Callback<TalkResponse> {
+public class ChatBotActivity extends TopActivity implements Callback<TalkResponse> {
 
     @BindView(R.id.messagesRecyclerView)
     RecyclerView messagesRecyclerView;
@@ -86,8 +87,8 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_bot);
+        super.onCreate(savedInstanceState);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -99,15 +100,6 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
                         .setAction("Action", null).show();
             }
         });*/
-
-        sendButton = findViewById(R.id.sendBtn);
-        sendButton.setOnClickListener(this);
-        speakButton = findViewById(R.id.btnSpeak);
-        speakButton.setOnClickListener(this);
-        cameraButton = findViewById(R.id.btnCamera);
-        cameraButton.setOnClickListener(this);
-
-        inputMessage = (EditText) findViewById(R.id.inputMessage);
         inputMessage.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -139,8 +131,6 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
         }
         messages = datasource.getAllMessages();
         MessageAdapter messageAdapter = new MessageAdapter(messages);
-        messagesRecyclerView = (RecyclerView) findViewById(R.id.messagesRecyclerView);
-        // use a linear layout manager
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setStackFromEnd(true);
         messagesRecyclerView.setLayoutManager(mLayoutManager);
@@ -224,40 +214,36 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.btnSpeak:
-                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-                intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                        getString(R.string.speech_prompt));
-                try {
-                    startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
-                } catch (ActivityNotFoundException a) {
-                    Toast.makeText(getApplicationContext(),
-                            getString(R.string.speech_not_supported),
-                            Toast.LENGTH_SHORT).show();
-                }
-                break;
-
-            case R.id.sendBtn:
-                if(!inputMessage.getText().toString().isEmpty()){
-                    //creation d'un nouveau message
-                    final String textToSend = inputMessage.getText().toString();
-                    addMessage(textToSend, null, true);
-                    inputMessage.setText("");
-                }
-                break;
-
-            case R.id.btnCamera:
-                takePicture(REQ_CODE_TAKE_PHOTO);
-                break;
-            default:
-                break;
+    @OnClick(R.id.btnSpeak)
+    public void speak() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                getString(R.string.speech_prompt));
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.speech_not_supported),
+                    Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @OnClick(R.id.sendBtn)
+    public void send() {
+        if (!inputMessage.getText().toString().isEmpty()) {
+            //creation d'un nouveau message
+            final String textToSend = inputMessage.getText().toString();
+            addMessage(textToSend, null, true);
+            inputMessage.setText("");
+        }
+    }
+
+    @OnClick(R.id.btnCamera)
+    public void takePicture(){
+        takePicture(REQ_CODE_TAKE_PHOTO);
     }
 
     @Override
@@ -303,21 +289,23 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
         public class ViewHolder extends RecyclerView.ViewHolder {
             @BindView(R.id.textmessage)
             public TextView messageTextView;
-            @BindView(R.id.image)
+
+            //@BindView(R.id.image)
             public ImageView imageView;
+
             @BindView(R.id.datemessage)
             public TextView dateTextView;
+
             public int mPosition;
-            @BindView(R.id.btnRead)
+
+            //@BindView(R.id.btnRead)
             public ImageButton btnRead;
 
             public ViewHolder(View v) {
                 super(v);
                 ButterKnife.bind(this, v);
-                //messageTextView = (TextView) v.findViewById(R.id.textmessage);
-                //imageView = (ImageView) v.findViewById(R.id.image);
-                //dateTextView = (TextView) v.findViewById(R.id.datemessage);
-                //btnRead = (ImageButton) v.findViewById(R.id.btnRead);
+                imageView = (ImageView) v.findViewById(R.id.image);
+                btnRead = (ImageButton) v.findViewById(R.id.btnRead);
                 if(btnRead != null) btnRead.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -399,7 +387,7 @@ public class ChatBotActivity extends TopActivity implements View.OnClickListener
         }
         datasource.createMessage(message);
 
-        if(bSend){ // on envoie pas les images pour l'instant
+        if(bSend){ // on n'envoie pas les images pour l'instant
             //envoi de la requete
             Handler mHandler = new Handler();
             mHandler.postDelayed(new Runnable(){

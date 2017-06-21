@@ -19,8 +19,9 @@ import android.widget.Toast;
 import com.example.natixis_dev.test.Utils.TopActivity;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
-public class WebviewActivity extends TopActivity implements View.OnClickListener {
+public class WebviewActivity extends TopActivity/* implements View.OnClickListener*/ {
 
     private static final CharSequence WWW_PREFIX = "www.";
     private static final CharSequence HTTP_PREFIX = "http://";
@@ -40,36 +41,22 @@ public class WebviewActivity extends TopActivity implements View.OnClickListener
         setContentView(R.layout.activity_webview);
         super.onCreate(savedInstanceState);
 
-        //goButton = findViewById(R.id.go_button);
-        goButton.setOnClickListener(this);
-        //inputUrl = (EditText) findViewById(R.id.inputUrl);
-
-        //myBrowser = (WebView) findViewById(R.id.webview);
         myBrowser.setWebViewClient(new MyBrowser());
         myBrowser.getSettings().setLoadsImagesAutomatically(true);
         myBrowser.getSettings().setJavaScriptEnabled(true);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.go_button:
-                if(!inputUrl.getText().toString().isEmpty()){
-                    String url = inputUrl.getText().toString();
-                    myBrowser.loadUrl(reformat(url));
-                }
-                break;
-            default:
-                break;
+    @OnClick(R.id.go_button)
+    public void goToPage() {
+        if(!inputUrl.getText().toString().isEmpty()) {
+            String url = inputUrl.getText().toString();
+            myBrowser.loadUrl(reformat(url));
         }
     }
 
     private String reformat(String p_Url) {
         if(!p_Url.contains(HTTP_PREFIX) && !p_Url.contains(HTTPS_PREFIX)){
-            /*if(!p_Url.contains(WWW_PREFIX)){
-                p_Url = WWW_PREFIX + p_Url;
-            }*/
-            p_Url = HTTP_PREFIX + p_Url;
+           p_Url = HTTP_PREFIX + p_Url;
         }
         return p_Url;
     }

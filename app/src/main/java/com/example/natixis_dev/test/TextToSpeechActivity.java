@@ -21,7 +21,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class TextToSpeechActivity extends TopActivity implements View.OnClickListener {
+public class TextToSpeechActivity extends TopActivity/* implements View.OnClickListener*/ {
 
     @BindView(R.id.btnRead)
     Button readButton;
@@ -30,19 +30,14 @@ public class TextToSpeechActivity extends TopActivity implements View.OnClickLis
     EditText textToRead;
 
     private AudioManager audioManager;
-
-    private SeekBar volumeBar;
+    @BindView(R.id.volume_bar)
+    SeekBar volumeBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_to_speech);
+        super.onCreate(savedInstanceState);
 
-        textToRead = (EditText) findViewById(R.id.inputText);
-        readButton = (Button) findViewById(R.id.btnRead);
-        readButton.setOnClickListener(this);
-
-        volumeBar = (SeekBar) findViewById(R.id.volume_bar);
         audioManager =
                 (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -73,14 +68,8 @@ public class TextToSpeechActivity extends TopActivity implements View.OnClickLis
         });
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnRead:
-                read(textToRead.getText().toString());
-                break;
-            default:
-                break;
-        }
+    @OnClick(R.id.btnRead)
+    public void read(){
+        read(textToRead.getText().toString());
     }
 }

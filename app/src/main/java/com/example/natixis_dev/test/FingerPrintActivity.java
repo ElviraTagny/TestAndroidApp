@@ -34,6 +34,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import butterknife.BindView;
+
 public class FingerPrintActivity extends TopActivity {
 
     private static final String ANDROID_KEYSTORE = "AndroidKeyStore";
@@ -41,19 +43,18 @@ public class FingerPrintActivity extends TopActivity {
     // Variable used for storing the key in the Android Keystore container
     private static final String KEY_NAME = "natixis";
     private Cipher cipher;
-    private TextView textView;
+    @BindView(R.id.errorText)
+    public TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finger_print);
+        super.onCreate(savedInstanceState);
 
         // Initializing both Android Keyguard Manager and Fingerprint Manager
         KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
 
-
-        textView = (TextView) findViewById(R.id.errorText);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(!fingerprintManager.isHardwareDetected()){
                 textView.setText(getString(R.string.no_fingerprint_feature));

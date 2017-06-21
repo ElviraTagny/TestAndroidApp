@@ -23,28 +23,28 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.jar.Manifest;
 
+import butterknife.BindView;
+
 public class NfcActivity extends TopActivity implements NfcAdapter.CreateNdefMessageCallback {
 
     private NfcAdapter mNfcAdapter;
     public static final String MIME_TEXT_PLAIN = "text/plain";
+    @BindView(R.id.nfc_received_data)
     public TextView mNfcTextView;
+    @BindView(R.id.nfc_input_data)
     public EditText mNfcEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc);
-        mNfcTextView = (TextView) findViewById(R.id.nfc_received_data);
-        mNfcEditText = (EditText) findViewById(R.id.nfc_input_data);
+        super.onCreate(savedInstanceState);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
         if (mNfcAdapter == null) {
             // Stop here, we definitely need NFC
             Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
             finish();
             return;
-
         }
 
         if (!mNfcAdapter.isEnabled()) {

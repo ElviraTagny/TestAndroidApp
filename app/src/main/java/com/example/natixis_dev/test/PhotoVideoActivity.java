@@ -24,8 +24,8 @@ public class PhotoVideoActivity extends TopActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_video);
+        super.onCreate(savedInstanceState);
         camera = getCameraInstance();
         mCameraPreview = new CameraPreview(this, camera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
