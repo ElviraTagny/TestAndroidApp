@@ -12,6 +12,7 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -91,7 +92,7 @@ public class NfcActivity extends TopActivity implements NfcAdapter.CreateNdefMes
             }
         } else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action) || NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
 
-            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            /*Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             String[] techList = tag.getTechList();
             String searchedTech = Ndef.class.getName();
 
@@ -100,8 +101,36 @@ public class NfcActivity extends TopActivity implements NfcAdapter.CreateNdefMes
                     new NdefReaderTask().execute(tag);
                     break;
                 }
+            }*/
+
+            Tag tag = (Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            byte[] id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            NdefMessage[] messages;
+            if (rawMsgs != null) {
+                messages = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++) {
+                    messages[i] = (NdefMessage) rawMsgs[i];
+                    NdefRecord record = messages[i].getRecords()[i];
+                    byte[] ide = record.getId();
+                    short tnf = record.getTnf();
+                    byte[] type = record.getType();
+                    String message = getTextData(record.getPayload());
+                    mNfcTextView.setText(mNfcTextView.getText().toString() + "\n" + message);
+                }
             }
         }
+    }
+
+    public String getTextData(byte[] payload) {
+        String texteCode = ((payload[0] & 0200) == 0) ? "UTF-8" : "UTF-16";
+        int langageCodeTaille = payload[0] & 0077;
+        try {
+            return new String(payload, langageCodeTaille + 1, payload.length - langageCodeTaille - 1, texteCode);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     public static void setupForegroundDispatch(final Activity activity, NfcAdapter adapter) {
