@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AlertDialog;
@@ -15,11 +14,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,37 +28,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.natixis_dev.test.Database.Message;
-import com.example.natixis_dev.test.Database.MessageDataSource;
-import com.example.natixis_dev.test.ServicesREST.ChatBotService;
-import com.example.natixis_dev.test.ServicesREST.TalkResponse;
-import com.example.natixis_dev.test.Utils.CustomTagHandler;
+import com.example.natixis_dev.test.DoYouDreamUpServices.DYDUChatBotService;
+import com.example.natixis_dev.test.NatServices.NatChatBotService;
+import com.example.natixis_dev.test.Services.ChatBotService;
 import com.example.natixis_dev.test.Utils.TopActivity;
-import com.example.natixis_dev.test.Utils.Utils;
 
-import java.io.ByteArrayOutputStream;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ChatBotActivity extends TopActivity implements Callback<TalkResponse> {
+public class ChatBotActivity extends TopActivity implements ChatBotService.DisplayMessageInterface {
 
     @BindView(R.id.messagesRecyclerView)
     RecyclerView messagesRecyclerView;
@@ -80,10 +61,9 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
     View cameraButton;
 
     private List<Message> messages = new ArrayList<>();
-    private ChatBotService chatBotService;
+    private NatChatBotService chatBotService;
     private TextToSpeech tts;
     private final int REQ_CODE_SPEECH_INPUT = 100;
-    private MessageDataSource datasource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,14 +102,9 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
             }
         });
 
-        //Recuperer les messages de la database
-        datasource = new MessageDataSource(this);
-        try {
-            datasource.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        messages = datasource.getAllMessages();
+        chatBotService = NatChatBotService.getInstance();
+        chatBotService.init(this, this);
+        messages = chatBotService.getDataSource().getAllMessages();
         MessageAdapter messageAdapter = new MessageAdapter(messages);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setStackFromEnd(true);
@@ -155,11 +130,10 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
         }
         if(messages.isEmpty()) {
             //welcome message
-            addMessage(getString(R.string.dudy_welcome_message), null, false);
+            Message message = new Message(getString(R.string.dudy_welcome_message), null, 0, false);
+            displayMessage(message);
+            chatBotService.getDataSource().createMessage(message);
         }
-
-
-        initChatBot();
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
                 @Override
@@ -197,7 +171,7 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
                     .setMessage(getString(R.string.alert_delete_text))
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            datasource.deleteAllMessages();
+                            chatBotService.getDataSource().deleteAllMessages();
                             messages.clear();
                             messagesRecyclerView.getAdapter().notifyDataSetChanged();
                         }
@@ -236,7 +210,8 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
         if (!inputMessage.getText().toString().isEmpty()) {
             //creation d'un nouveau message
             final String textToSend = inputMessage.getText().toString();
-            addMessage(textToSend, null, true);
+            displayMessage(textToSend, null, true);
+            chatBotService.sendMessage(textToSend);
             inputMessage.setText("");
         }
     }
@@ -261,20 +236,25 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
                 break;
             case REQ_CODE_TAKE_PHOTO:
                 if(resultCode == RESULT_OK) {
-                    addMessage("", getCurrentUriFile().getPath(), true);
-
+                    displayMessage("", getCurrentUriFile().getPath(), true);
+                    //chatBotService.sendMessage(""); //on n'envoie pas encore les photos
                 }
                 break;
         }
     }
 
     public void onDestroy(){
-        datasource.close();
+        chatBotService.closeDatabase();
         if(tts !=null){
             tts.stop();
             tts.shutdown();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onDisplayMessage(Message aMessage) {
+        displayMessage(aMessage);
     }
 
     /***** RECYCLER VIEW STACK *********/
@@ -349,8 +329,11 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
             String txt = mDataset.get(position).getTextMessage();
             if(!txt.isEmpty()){
                 holder.messageTextView.setVisibility(View.VISIBLE);
-                holder.messageTextView.setText(txt);
                 holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
+                if(holder.btnRead != null) { //means it's a bot message //TODO find another way to show it
+                    holder.messageTextView.setText(chatBotService.getBotFormattedText(txt), TextView.BufferType.SPANNABLE);
+                }
+                else holder.messageTextView.setText(txt);
             }
             else holder.messageTextView.setVisibility(View.GONE);
             if(holder.imageView != null) {
@@ -377,127 +360,28 @@ public class ChatBotActivity extends TopActivity implements Callback<TalkRespons
         }
     }
 
-    private void addMessage(final String sTextMessage, final String bImagePath, boolean bSend) {
-        Message message = new Message(sTextMessage, bImagePath, 0, bSend);
-        messages.add(message);
+    private void displayMessage(final Message aMessage) {
+        messages.add(aMessage);
         if(messages.size() > 0) {
             messagesRecyclerView.getAdapter().notifyItemInserted(messages.size() - 1);
             messagesRecyclerView.smoothScrollToPosition(
                     messagesRecyclerView.getAdapter().getItemCount() - 1);
         }
-        datasource.createMessage(message);
-
-        if(bSend){ // on n'envoie pas les images pour l'instant
-            //envoi de la requete
-            Handler mHandler = new Handler();
-            mHandler.postDelayed(new Runnable(){
-                public void run() {
-                    Call<TalkResponse> call = chatBotService.talk(getTalkRequestParameters(sTextMessage, bImagePath));
-                    call.enqueue(ChatBotActivity.this);
-                }
-            }, 300);
-        }
     }
 
-    /***** CHATBOT STACK *******/
-
-    public void initChatBot(){
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ChatBotService.ENDPOINT)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        chatBotService = retrofit.create(ChatBotService.class);
+    private void displayMessage(final String sTextMessage, final String bImagePath, boolean bSend) {
+        Message message = new Message(sTextMessage, bImagePath, 0, bSend);
+        displayMessage(message);
     }
 
-    @Override
-    public void onResponse(Call<TalkResponse> call, Response<TalkResponse> response) {
-        if(response.errorBody() != null){
-            Log.e(APP_TAG + ChatBotActivity.class.getSimpleName(), "An error occured: " + response.errorBody().toString());
-            //Toast.makeText(this, "An error occured", Toast.LENGTH_SHORT).show();
-            addMessage("Oups ! Un problème est survenu...", null, false);
-        }
-        else if(response.body() != null) {
-            String messageText = getCleanText(response.body().getValues().getText());
-            addMessage(messageText, null, false);
-        }
-    }
+    /*private void sendMessage(final String sTextMessage){
+        //envoi de la requete
+        Handler mHandler = new Handler();
+        mHandler.postDelayed(new Runnable(){
+            public void run() {
 
-    @Override
-    public void onFailure(Call<TalkResponse> call, Throwable t) {
-        Log.e(APP_TAG + ChatBotActivity.class.getSimpleName(), "An error occured: " + t.getLocalizedMessage());
-    }
-
-    private Map<String, Object> getHistoryRequestParameters(){
-
-        Map<String, Object> data = new HashMap<>();
-
-        return data;
-    }
-
-    private String getTalkRequestParameters(String userInput, String bImagePath){
-        StringBuilder data = new StringBuilder();
-        data.append("{\"type\":\"talk\",");
-        data.append("\"parameters\":{");
-        //data.append("\"userUrl\":\"" + Utils.encodeFromUtf8ToBase64("http://front1.doyoudreamup.com/TestRecipe/30bfa404-279b-48c7-b8b7-ba8d4adf498e/de8f0b26-4a18-4051-8573-cf1430626d97/sample.debug.html") + "\",");
-        //data.append("\"alreadyCame\":true,");
-        data.append("\"clientId\":\"" + Utils.encodeFromUtf8ToBase64("USERID_123") + "\","); //USERID_123
-        //data.append("\"os\":\"Linux x86_64\",");
-        //data.append("\"browser\":\"Firefox 45.0\",");
-        //data.append("\"disableLanguageDetection\":\"" + Utils.encodeFromUtf8ToBase64("true") + "\",");
-        //data.append("\"contextType\":\"Web\",");
-        //data.append("\"mode\":\"Synchrone\",");
-        data.append("\"botId\":\"" + Utils.encodeFromUtf8ToBase64("972f1264-6d85-4a58-b5ac-da31481dda63") + "\","); //30bfa404-279b-48c7-b8b7-ba8d4adf498e
-        //data.append("\"qualificationMode\":true,");
-        data.append("\"language\":\"" + Utils.encodeFromUtf8ToBase64("fr") + "\",");
-        data.append("\"space\":\"" + Utils.encodeFromUtf8ToBase64("Defaut") + "\",");
-        data.append("\"solutionUsed\":\"" + Utils.encodeFromUtf8ToBase64("ASSISTANT") + "\",");
-        data.append("\"pureLivechat\":false,");
-        String encodedPicture = "";
-        if(bImagePath != null){
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 4;
-            Bitmap bitmap = null;
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            try {
-                bitmap = BitmapFactory.decodeFile(bImagePath, options);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                chatBotService.sendMessage(sTextMessage);
             }
-            catch (OutOfMemoryError err){
-                bitmap.compress(Bitmap.CompressFormat.PNG, 50, byteArrayOutputStream);
-                Log.e(APP_TAG+ ChatBotActivity.class.getSimpleName(), "Out of memory error catched");
-            }
-            byte[] byteArray = byteArrayOutputStream.toByteArray();
-            encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
-        }
-        data.append("\"userInput\":\"" + encodedPicture + Utils.encodeFromUtf8ToBase64(userInput) + "\",");
-        data.append("\"contextId\":\"" + Utils.encodeFromUtf8ToBase64("1982637c-1ff2-4224-8c63-c0ced20cc8ca") + "\"");
-        data.append("}}");
-
-        return data.toString();
-    }
-
-    private String getCleanText(String sEncodedHtmlText) {
-        // Base 64 decode
-        String text = Utils.decodeFromBase64ToUtf8(sEncodedHtmlText);
-        // Get text to underline
-/*
-        Pattern pattern = Pattern.compile("onclick=\"reword.*',");
-        Matcher matcher = pattern.matcher(text);
-        for (int i = 1; i < matcher.groupCount(); i++){
-            Log.d("PARSE", matcher.group(i) +" ");
-        }
-*/
-
-        // Html to Text
-        text = Html.fromHtml(text, null, new CustomTagHandler()).toString();
-        //String[] und_text = text.split("•");
-
-        return text;
-    }
+        }, 300);
+    }*/
 }

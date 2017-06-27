@@ -1,10 +1,10 @@
-package com.example.natixis_dev.test.ServicesREST;
+package com.example.natixis_dev.test.DoYouDreamUpServices;
 
 /**
  * Created by natixis-dev on 09/06/2017.
  */
 
-public class HistoryResponse {
+public class DYDUHistoryResponse {
 
     private String type;
     private Values values;

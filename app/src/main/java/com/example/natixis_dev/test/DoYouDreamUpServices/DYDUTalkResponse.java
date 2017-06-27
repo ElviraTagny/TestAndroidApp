@@ -1,11 +1,10 @@
-package com.example.natixis_dev.test.ServicesREST;
+package com.example.natixis_dev.test.DoYouDreamUpServices;
 
 /**
- * Created by natixis-dev on 09/06/2017.
+ * Created by natixis-dev on 27/06/2017.
  */
 
-public class TalkResponse {
-
+public class DYDUTalkResponse {
     private String type;
     private Values values;
 

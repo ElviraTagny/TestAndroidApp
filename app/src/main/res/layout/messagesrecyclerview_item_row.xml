@@ -26,7 +26,9 @@
             android:id="@+id/textmessage"
             android:textSize="14dp"
             android:textColor="@android:color/black"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:textColorLink="@android:color/holo_blue_bright"
+            android:clickable="true"/>
 
         <TextView
             android:layout_width="wrap_content"
