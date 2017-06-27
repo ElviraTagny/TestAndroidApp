@@ -19,7 +19,7 @@ public abstract class ChatBotService {
     public DisplayMessageInterface iDisplayMessageInterface;
 
     public interface DisplayMessageInterface {
-        public void onDisplayMessage(Message aMessage);
+        void onDisplayMessage(Message aMessage);
     }
 
     public void init(Context aContext, DisplayMessageInterface iDisplayMessageInterface){
@@ -31,7 +31,7 @@ public abstract class ChatBotService {
         closeDatabase();
     };
 
-    public void openDatabase(Context aContext){
+    private void openDatabase(Context aContext){
         datasource = new MessageDataSource(aContext);
         try {
             datasource.open();
@@ -40,7 +40,7 @@ public abstract class ChatBotService {
         }
     }
 
-    public void closeDatabase() {
+    private void closeDatabase() {
         datasource.close();
     }
 

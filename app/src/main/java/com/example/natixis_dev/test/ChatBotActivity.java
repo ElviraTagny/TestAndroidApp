@@ -244,7 +244,7 @@ public class ChatBotActivity extends TopActivity implements ChatBotService.Displ
     }
 
     public void onDestroy(){
-        chatBotService.closeDatabase();
+        chatBotService.close();
         if(tts !=null){
             tts.stop();
             tts.shutdown();
