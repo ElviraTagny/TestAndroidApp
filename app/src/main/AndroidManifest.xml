@@ -66,7 +66,7 @@
                 android:value="com.example.natixis_dev.test.MainActivity" />
         </activity>
         <activity
-            android:name=".ChatBotActivity"
+            android:name=".Components.ChatBotActivity"
             android:label="@string/title_activity_chat_bot"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".PhotoVideoActivity" />
@@ -75,26 +75,31 @@
         <activity android:name=".NfcActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
                 <data android:mimeType="text/plain" />
+
                 <meta-data
                     android:name="android.nfc.action.NDEF_DISCOVERED"
                     android:resource="@xml/nfc_tech_filter" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.nfc.action.TECH_DISCOVERED"/>
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+
                 <meta-data
                     android:name="android.nfc.action.TECH_DISCOVERED"
                     android:resource="@xml/nfc_tech_filter" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <meta-data
                     android:name="android.nfc.action.TECH_DISCOVERED"
                     android:resource="@xml/nfc_tech_filter" />
             </intent-filter>
-
         </activity>
+        <activity android:name=".MyChatBotActivity"></activity>
     </application>
 
 </manifest>

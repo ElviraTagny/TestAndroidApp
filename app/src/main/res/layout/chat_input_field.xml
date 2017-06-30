@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="30dp"
+android:layout_alignParentBottom="true"
+android:id="@+id/sendmessageLayout"
+android:gravity="center_vertical">
+
+<RelativeLayout
+    android:layout_width="30dp"
+    android:layout_height="30dp"
+    android:layout_alignParentRight="true"
+    android:id="@+id/icon_right">
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/sparrow_icon"
+        android:id="@+id/sendBtn"
+        android:visibility="gone"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/ico_mic"
+        android:id="@+id/btnSpeak" />
+</RelativeLayout>
+
+<Button
+    android:layout_width="30dp"
+    android:layout_height="30dp"
+    android:layout_toLeftOf="@id/icon_right"
+    android:background="@android:drawable/ic_menu_camera"
+    android:id="@+id/btnCamera"
+    android:layout_marginRight="3dp"
+    android:layout_marginLeft="3dp"/>
+
+<EditText
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_toLeftOf="@id/btnCamera"
+    android:background="@android:color/white"
+    android:layout_marginRight="5dp"
+    android:id="@+id/inputMessage"
+    android:paddingLeft="5dp"/>
+
+</RelativeLayout>

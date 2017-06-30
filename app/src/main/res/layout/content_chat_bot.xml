@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.natixis_dev.test.ChatBotActivity"
+    tools:context="com.example.natixis_dev.test.Components.ChatBotActivity"
     tools:showIn="@layout/activity_chat_bot"
     android:background="@color/very_light_gray"
     android:padding="10dp">
@@ -21,52 +21,12 @@
 
     </android.support.v7.widget.RecyclerView>
 
-    <RelativeLayout
+    <com.example.natixis_dev.test.Components.ChatInputField
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:id="@+id/sendmessageLayout"
-        android:gravity="center_vertical">
-
-        <RelativeLayout
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:id="@+id/icon_right">
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/sparrow_icon"
-            android:id="@+id/sendBtn"
-            android:visibility="gone"/>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/ico_mic"
-            android:id="@+id/btnSpeak" />
-        </RelativeLayout>
-
-        <Button
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_toLeftOf="@id/icon_right"
-            android:background="@android:drawable/ic_menu_camera"
-            android:id="@+id/btnCamera"
-            android:layout_marginRight="3dp"
-            android:layout_marginLeft="3dp"/>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_toLeftOf="@id/btnCamera"
-            android:background="@android:color/white"
-            android:layout_marginRight="5dp"
-            android:id="@+id/inputMessage"
-            android:paddingLeft="5dp"/>
-
-    </RelativeLayout>
+        android:id="@+id/sendmessageLayout"/>
 
 </android.support.constraint.ConstraintLayout>

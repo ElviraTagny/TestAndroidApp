@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="showProfilePicture" format="boolean" />
+    <attr name="profilePicture" format="integer" />
+    <attr name="labelPosition" format="enum">
+        <enum name="left" value="0"/>
+        <enum name="right" value="1"/>
+    </attr>
+    <declare-styleable name="BotBubble">
+        <attr name="showSpeaker" format="boolean" />
+        <attr name="showProfilePicture" />
+        <attr name="profilePicture" />
+    </declare-styleable>
+    <declare-styleable name="SenderBubble">
+        <attr name="sendImage" format="boolean" />
+        <attr name="showMicro" format="boolean" />
+        <attr name="showProfilePicture" />
+        <attr name="profilePicture" />
+    </declare-styleable>
+</resources>

@@ -183,7 +183,7 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
                         startActivity(intent);
                         break;
                     case 6:
-                        intent = new Intent(MainActivity.this, ChatBotActivity.class);
+                        intent = new Intent(MainActivity.this, MyChatBotActivity.class);
                         startActivity(intent);
                         break;
                     case 7:

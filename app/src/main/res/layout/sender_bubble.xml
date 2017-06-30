@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp">
 
-    <!--<ImageView
+    <ImageView
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/profilePicture"
-        android:layout_marginRight="5dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="3dp"
         android:layout_centerVertical="true"
-        android:src="@drawable/dydu"/>
+        android:src="@drawable/user_icon" />
 
     <RelativeLayout
         android:layout_width="230dp"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/profilePicture"
+        android:layout_toLeftOf="@id/profilePicture"
         android:id="@+id/bullemessage"
-        android:background="@drawable/bulle_background_white"
+        android:background="@drawable/bulle_background_blue"
         android:layout_centerVertical="true">
+
+        <ImageView
+            android:layout_width="230dp"
+            android:layout_height="230dp"
+            android:scaleType="centerInside"
+            android:id="@+id/image"
+            android:visibility="gone"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -26,33 +35,17 @@
             android:textSize="14dp"
             android:textColor="@android:color/black"
             android:layout_centerVertical="true"
-            android:textColorLink="@android:color/holo_blue_bright"
-            android:clickable="true"/>
+            android:layout_below="@id/image"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/datemessage"
             android:layout_below="@id/textmessage"
-            android:layout_alignRight="@id/textmessage"
+            android:layout_alignParentRight="true"
             android:textSize="10dp"
             android:textColor="@color/dark_gray"
             android:paddingTop="3dp"/>
     </RelativeLayout>
-    <ImageButton
-        android:layout_width="17dp"
-        android:layout_height="17dp"
-        android:layout_toRightOf="@id/bullemessage"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/speaker2"
-        android:layout_marginLeft="5dp"
-        android:id="@+id/btnRead"/>-->
 
-    <com.example.natixis_dev.test.Components.BotBubble
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_marginBottom="10dp"
-        android:id="@+id/bot_bubble"/>
-        <!--app:showProfilePicture="true"-->
-        <!--app:showSpeaker="true"/>-->
 </RelativeLayout>

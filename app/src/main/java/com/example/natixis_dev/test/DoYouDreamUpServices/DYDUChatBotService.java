@@ -11,7 +11,7 @@ import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.View;
 
-import com.example.natixis_dev.test.ChatBotActivity;
+import com.example.natixis_dev.test.Components.ChatBotActivity;
 import com.example.natixis_dev.test.Database.Message;
 import com.example.natixis_dev.test.Services.ChatBotService;
 import com.example.natixis_dev.test.Utils.Utils;
