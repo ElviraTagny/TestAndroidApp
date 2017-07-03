@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.natixis_dev.test.Database.Message;
+import com.example.natixis_dev.test.DoYouDreamUpServices.DYDUChatBotService;
 import com.example.natixis_dev.test.NatServices.NatChatBotService;
 import com.example.natixis_dev.test.R;
 import com.example.natixis_dev.test.Services.ChatBotService;
@@ -64,7 +65,7 @@ public class ChatBotActivity extends AppCompatActivity implements ChatBotService
     ChatInputField chatInputField;
 
     private List<Message> messages = new ArrayList<>();
-    private NatChatBotService chatBotService;
+    private DYDUChatBotService chatBotService;
     private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
@@ -75,7 +76,7 @@ public class ChatBotActivity extends AppCompatActivity implements ChatBotService
 
         chatInputField.setListener(this);
 
-        chatBotService = NatChatBotService.getInstance();
+        chatBotService = DYDUChatBotService.getInstance();
         chatBotService.init(this, this);
         messages = chatBotService.getDataSource().getAllMessages();
 
