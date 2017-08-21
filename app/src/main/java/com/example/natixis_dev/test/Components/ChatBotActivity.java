@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.example.natixis_dev.test.Database.Message;
 import com.example.natixis_dev.test.DoYouDreamUpServices.DYDUChatBotService;
-import com.example.natixis_dev.test.NatServices.NatChatBotService;
 import com.example.natixis_dev.test.R;
 import com.example.natixis_dev.test.Services.ChatBotService;
 import com.example.natixis_dev.test.Utils.Utils;
