@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.natixis_dev.test.MainActivity"
+    tools:context="com.tagny.dev.test.MainActivity"
     tools:showIn="@layout/activity_main"
     android:paddingLeft="@dimen/content_margin"
     android:paddingRight="10dp"

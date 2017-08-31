@@ -48,7 +48,7 @@
         android:layout_marginLeft="5dp"
         android:id="@+id/btnRead"/>-->
 
-    <com.example.natixis_dev.test.Components.BotBubble
+    <com.tagny.dev.test.Components.BotBubble
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_marginBottom="10dp"

@@ -5,7 +5,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
     defaultConfig {
-        applicationId "com.example.natixis_dev.test"
+        applicationId "com.tagny.dev.test"
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
@@ -27,10 +27,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -39,18 +42,23 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile 'com.jakewharton:butterknife:8.5.1'
     compile 'com.android.support:recyclerview-v7:25.1.1'
-
     // Retrofit & OkHttp
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     // JSON Converter
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     // Logging http requests
     compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
-
     //StompClient Helper
     compile 'com.github.NaikSoftware:StompProtocolAndroid:1.3.0'
     compile 'org.java-websocket:Java-WebSocket:1.3.0'
-
+    // Google play services
+    compile 'com.google.api-client:google-api-client-android:1.22.0'
+    //Youtube
+    compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
+    /*{
+            exclude group: 'org.apache.httpcomponents'
+        }*/
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile files('libs/YouTubeAndroidPlayerApi.jar')
 }

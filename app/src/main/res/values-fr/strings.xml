@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Test</string>
+    <string name="app_name">TagnyTest</string>
     <string name="action_settings">Paramètres</string>
     <string name="hello_world">Salut les gens !</string>
     <string name="speech_prompt">Vous pouvez parler&#8230;</string>
@@ -53,4 +53,7 @@
     <string name="photo_button">Photo</string>
     <string name="phonenumber_hint">+33 1 23 45 67 89</string>
     <string name="nfc_input_hint">Enter data to send here</string>
+    <string name="title_activity_message">MessageActivity</string>
+    <string name="title_activity_chat_bot">ChatBotActivity</string>
+
 </resources>

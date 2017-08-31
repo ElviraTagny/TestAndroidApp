@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.natixis_dev.test">
+    package="com.tagny.dev.test">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -19,6 +19,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
         android:allowBackup="true"
@@ -29,7 +31,7 @@
         android:theme="@style/AppTheme">
         <provider
             android:name=".Database.MessageContentProvider"
-            android:authorities="com.example.natixis_dev.test.contentprovider" />
+            android:authorities="com.tagny.dev.test.contentprovider" />
 
         <activity
             android:name=".SplashActivity"
@@ -63,7 +65,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.natixis_dev.test.MainActivity" />
+                android:value="com.tagny.dev.test.MainActivity" />
         </activity>
         <activity
             android:name=".Components.ChatBotActivity"
@@ -99,7 +101,8 @@
                     android:resource="@xml/nfc_tech_filter" />
             </intent-filter>
         </activity>
-        <activity android:name=".MyChatBotActivity"></activity>
+        <activity android:name=".MyChatBotActivity" />
+        <activity android:name=".YoutubeActivity"></activity>
     </application>
 
 </manifest>
