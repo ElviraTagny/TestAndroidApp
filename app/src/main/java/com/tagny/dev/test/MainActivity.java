@@ -203,6 +203,23 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
                 this.mPosition = position;
                 mTextView.setTag(mPosition);
             }
+
+            public boolean isEnabled(int position) {
+                switch (position){
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 16:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
         }
 
         public MenuAdapter(String[] myDataset) {
@@ -222,6 +239,7 @@ public class MainActivity extends TopActivity implements RecyclerView.RecyclerLi
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.setPosition(position);
             holder.mTextView.setText(mDataset[position]);
+            holder.mTextView.setEnabled(holder.isEnabled(position));
         }
 
         @Override
