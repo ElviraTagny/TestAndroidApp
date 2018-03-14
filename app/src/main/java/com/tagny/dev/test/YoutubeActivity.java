@@ -72,8 +72,13 @@ public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlaye
 
         if(mInputUrl.getText() != null) {
             String url = mInputUrl.getText().toString();
-            String videoId = url.split("youtu.be/")[1];
-            mYouTubePlayer.loadVideo(videoId);
+            try {
+                String videoId = url.split("youtu.be/")[1];
+                mYouTubePlayer.loadVideo(videoId);
+            }
+            catch (ArrayIndexOutOfBoundsException e){
+                Toast.makeText(this, "An error occured", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

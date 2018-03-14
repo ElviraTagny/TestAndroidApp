@@ -26,7 +26,7 @@
         <EditText
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:hint="Tap url here..."
+            android:hint="Please enter a formatted url here like youtu.be/XXX"
             android:textColor="@color/colorAccent"
             android:textSize="16dp"
             android:fontFamily="sans-serif"
